@@ -1,8 +1,1182 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>Canada Fall 2026 · Interactive Travel Handbook</title>
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#10251f; --pine:#173e35; --cream:#f5f0e7; --paper:#fffdf9;
+  --muted:#64716d; --gold:#d69a35; --red:#ad4d39; --line:#ded7ca;
+  --shadow:0 14px 40px rgba(20,36,30,.09);
+}
+*{box-sizing:border-box;font-family:Arial,"Microsoft YaHei","微软雅黑","PingFang SC",sans-serif}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink)}
+button{font:inherit}
+.hero{
+  min-height:88vh;display:flex;align-items:flex-end;position:relative;overflow:hidden;color:#fff;
+  background:
+  linear-gradient(90deg,rgba(9,30,26,.70),rgba(9,30,26,.25)),
+  url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Peyto_Lake_June_2018.jpg/1280px-Peyto_Lake_June_2018.jpg") center/cover;
+}
+.hero:after{content:"";position:absolute;inset:auto 0 0;height:24%;background:linear-gradient(transparent,var(--cream))}
+.hero-in{position:relative;z-index:2;width:min(1180px,92vw);margin:0 auto;padding:0 0 11vh}
+.kicker{font-size:12px;letter-spacing:.28em;text-transform:uppercase;font-weight:700}
+h1{font-size:clamp(48px,8vw,102px);line-height:.92;margin:18px 0 18px;font-weight:700;letter-spacing:-.04em}
+.hero p{font-size:clamp(17px,2vw,23px);line-height:1.6;max-width:850px;margin:0}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.pill{padding:9px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);backdrop-filter:blur(10px);font-size:13px}
+.wrap{width:min(1180px,92vw);margin:auto}
+.section{padding:78px 0}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--red)}
+h2{font-size:clamp(34px,5vw,58px);letter-spacing:-.035em;margin:10px 0 18px;line-height:1.08}
+h3{margin:0 0 9px}
+.lead{font-size:18px;line-height:1.8;color:#44534e;max-width:940px}
+.compare-strip{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.compare-card{background:var(--paper);border:1px solid #e4ddd1;border-radius:22px;padding:26px;box-shadow:var(--shadow)}
+.compare-card h3{font-size:25px}
+.route-line{font-weight:700;color:var(--pine);line-height:1.7;margin:12px 0}
+.compare-card ul{padding-left:18px;color:#52615c;line-height:1.8}
+.badge{display:inline-block;font-size:11px;padding:6px 9px;border-radius:999px;background:#edf2ef;color:#315447;margin:3px 4px 3px 0}
+.tabs-shell{background:#10251f;padding:10px;border-radius:22px;display:flex;gap:8px;margin:28px 0 18px;position:sticky;top:8px;z-index:30;box-shadow:0 12px 30px rgba(16,37,31,.18)}
+.tab-btn{border:0;border-radius:15px;padding:15px 18px;cursor:pointer;flex:1;background:transparent;color:#c6d1cd;font-weight:700}
+.tab-btn.active{background:#fff;color:#10251f}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.tab-hero{display:grid;grid-template-columns:1.08fr .92fr;background:#fff;border-radius:26px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:28px}
+.tab-hero img{width:100%;height:100%;min-height:360px;object-fit:cover}
+.tab-hero-copy{padding:38px}
+.tab-hero-copy h3{font-size:33px}
+.tab-hero-copy p{line-height:1.8;color:#52615c}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px}
+.metric{padding:14px;border-radius:14px;background:#f1eee8}
+.metric small{display:block;color:#78807d;font-size:11px}
+.metric b{font-size:19px}
+.timeline{position:relative;margin-top:20px}
+.day{display:grid;grid-template-columns:88px 1fr;gap:28px;padding:13px 0}
+.date{font-weight:700;color:var(--red);font-size:18px;padding-top:18px}
+.day-card{display:grid;grid-template-columns:245px 1fr;background:#fff;border:1px solid #e6dfd4;border-radius:22px;overflow:hidden;box-shadow:0 9px 26px rgba(35,42,38,.05)}
+.day-card img{width:245px;height:100%;min-height:190px;object-fit:cover;background:#d9dedb}
+.day-copy{padding:22px 24px}
+.day-copy p{margin:6px 0;line-height:1.7;color:#52615c}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.tag{font-size:11px;padding:6px 9px;border-radius:999px;background:#edf2ef;color:#315447}
+.budget-wrap{margin-top:48px}
+.budget-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e1d9cc;border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.budget-table th,.budget-table td{padding:13px 14px;border-bottom:1px solid #eee7dc;text-align:left;font-size:13px;vertical-align:top}
+.budget-table th{background:#10251f;color:#fff}
+.budget-table tr:last-child td{border-bottom:0}
+.total-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.total{background:#10251f;color:#fff;border-radius:18px;padding:22px}
+.total small{display:block;color:#bdc9c5}.total b{display:block;font-size:28px;margin:5px 0}
+.map-shell{display:grid;grid-template-columns:280px 1fr;min-height:590px;border-radius:26px;overflow:hidden;background:#10251f;box-shadow:0 24px 60px rgba(15,35,29,.16)}
+.map-nav{padding:22px;color:#fff;overflow:auto}
+.map-nav p{font-size:13px;color:#b5c2bd;line-height:1.55}
+.place-btn{width:100%;border:0;background:transparent;color:#e9efed;text-align:left;padding:10px;border-radius:10px;cursor:pointer}
+.place-btn:hover,.place-btn.active{background:rgba(255,255,255,.11)}
+.place-btn small{display:block;color:#97a9a3;margin-top:2px}
+#map{height:590px}
+.legend{position:absolute;right:14px;bottom:14px;z-index:500;background:rgba(255,253,249,.95);padding:10px 12px;border-radius:12px;box-shadow:0 8px 22px rgba(0,0,0,.12);font-size:11px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.dot.flight{background:var(--red)}.dot.drive{background:var(--gold)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.info-card{background:#fff;border-radius:20px;overflow:hidden;border:1px solid #e5ded2;box-shadow:var(--shadow)}
+.info-card img{width:100%;height:220px;object-fit:cover}
+.info-card .body{padding:18px}
+.info-card p{font-size:14px;line-height:1.7;color:#596660}
+.callout{background:#fff;border-left:4px solid var(--gold);border-radius:0 18px 18px 0;padding:22px 25px;box-shadow:var(--shadow);line-height:1.75;margin:22px 0}
+.footer{padding:58px 0 80px;color:#6a7470;font-size:13px;line-height:1.7}
+@media(max-width:900px){
+ .compare-strip,.tab-hero,.grid3{grid-template-columns:1fr}
+ .metric-grid{grid-template-columns:1fr 1fr}.map-shell{grid-template-columns:1fr}.map-nav{max-height:250px}
+ .day-card{grid-template-columns:190px 1fr}.day-card img{width:190px}
+}
+@media(max-width:650px){
+ .day{grid-template-columns:1fr;gap:5px}.date{padding-top:0}.day-card{grid-template-columns:1fr}.day-card img{width:100%;height:220px}
+ .total-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr 1fr}.tabs-shell{position:static}
+}
+
+/* ===== GitHub Pages / WeChat mobile refinements ===== */
+html,body{max-width:100%;overflow-x:hidden}
+button{touch-action:manipulation;-webkit-tap-highlight-color:rgba(173,77,57,.15)}
+.place-btn,.tab-btn{min-height:46px}
+.weather-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+.weather-card{background:#fff;border:1px solid #e5ded2;border-radius:18px;padding:17px;box-shadow:0 10px 26px rgba(20,36,30,.06)}
+.weather-card h3{font-size:17px;margin:0 0 7px}.weather-temp{font-size:24px;font-weight:800;color:#ad4d39;margin-bottom:6px}
+.weather-card p{font-size:13px;line-height:1.65;color:#596660;margin:0}
+.weather-note{margin-top:16px;background:#10251f;color:#f5f0e7;padding:18px 20px;border-radius:18px;line-height:1.7}
+.plane-marker{font-size:26px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));transform:translate(-50%,-50%)}
+@media(max-width:768px){
+  .hero{min-height:70vh;background-position:center}
+  .hero-in{width:92vw;padding-bottom:8vh}
+  h1{font-size:clamp(42px,14vw,68px);line-height:.95}
+  h2{font-size:clamp(30px,9vw,42px)}
+  .hero p,.lead{font-size:16px;line-height:1.72}
+  .section{padding:52px 0}.wrap{width:92vw}
+  .compare-strip,.grid3,.tab-hero,.culture{grid-template-columns:1fr}
+  .tabs-shell{position:sticky;top:0;z-index:80;overflow-x:auto;display:flex;gap:8px;padding:8px;border-radius:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs-shell::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 82vw;min-width:82vw;padding:14px 16px;font-size:14px;line-height:1.35}
+  .metric-grid{grid-template-columns:1fr 1fr}
+  .timeline{margin-top:12px}.day{grid-template-columns:1fr;gap:7px;padding:13px 0}.date{padding:0;font-size:17px}
+  .day-card{grid-template-columns:1fr;border-radius:18px}.day-card img{width:100%;height:220px;min-height:220px}.day-copy{padding:18px}
+  .day-copy h3{font-size:21px;line-height:1.45}.day-copy p{font-size:15px;line-height:1.72}
+  .map-shell{grid-template-columns:1fr;min-height:0;border-radius:20px}
+  .map-nav{padding:14px;max-height:none;overflow:visible}
+  #mapButtons{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #mapButtons::-webkit-scrollbar{display:none}
+  .place-btn{flex:0 0 76vw;width:76vw;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);padding:11px 12px}
+  #map{height:440px}.legend{right:8px;bottom:8px;font-size:10px}
+  .budget-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .budget-table thead,.budget-table tbody{display:table;width:720px;table-layout:fixed}
+  .total-grid{grid-template-columns:1fr}
+  .weather-strip{grid-template-columns:1fr 1fr}
+  h1,h2,h3,p,td,th,.route-line,.place-btn,.tab-btn{overflow-wrap:anywhere;word-break:break-word}
+}
+@media(max-width:430px){
+  .weather-strip{grid-template-columns:1fr}
+  .tab-btn{flex-basis:86vw;min-width:86vw}
+  #map{height:410px}
+}
+
+.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:20px 0}
+.detail-card{background:#fff;border:1px solid #e5ded2;border-radius:20px;padding:20px;box-shadow:0 10px 28px rgba(20,36,30,.06)}
+.detail-card h3{font-size:20px;margin:0 0 10px}.detail-card p,.detail-card li{font-size:14px;line-height:1.7;color:#56645f}
+.ops-table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden;margin:20px 0}
+.ops-table th,.ops-table td{padding:12px 13px;border-bottom:1px solid #e9e2d7;vertical-align:top;text-align:left;font-size:13px;line-height:1.55}
+.ops-table th{background:#10251f;color:#fff}.ops-table tr:last-child td{border-bottom:0}
+.source-pill{font-size:11px;border-radius:999px;background:#f0ece4;padding:5px 8px;display:inline-block;margin-top:6px}
+@media(max-width:768px){.detail-grid{grid-template-columns:1fr}.ops-table{display:block;overflow-x:auto}.ops-table thead,.ops-table tbody{display:table;width:860px;table-layout:fixed}}
+
+/* ===== Three detailed route plans ===== */
+.compare-strip.three{grid-template-columns:repeat(3,1fr)}
+.route-tab-panel{display:none}.route-tab-panel.active{display:block}
+.route-tabs{display:flex;gap:8px;overflow-x:auto;position:sticky;top:8px;z-index:90;background:rgba(245,240,231,.96);padding:9px;border-radius:18px;backdrop-filter:blur(12px);scrollbar-width:none}
+.route-tabs::-webkit-scrollbar{display:none}
+.route-tab-btn{border:1px solid #ddd6ca;background:#fff;color:#10251f;border-radius:14px;padding:13px 16px;min-height:48px;font-weight:700;white-space:nowrap}
+.route-tab-btn.active{background:#10251f;color:#fff;border-color:#10251f}
+.route-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin:22px 0}
+.route-hero-main,.route-side{background:#fff;border:1px solid #e4ddd1;border-radius:22px;padding:25px;box-shadow:0 10px 28px rgba(20,36,30,.06)}
+.route-hero-main h3{font-size:31px;margin:7px 0 10px}
+.route-badges{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.route-badges span{font-size:11px;padding:6px 9px;border-radius:999px;background:#edf2ef;color:#315447}
+.route-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.route-metric{background:#f2eee7;border-radius:14px;padding:12px}.route-metric small{display:block;color:#75807c;font-size:10px}.route-metric b{font-size:17px}
+.route-side ul{padding-left:18px;color:#56645f;line-height:1.72;font-size:14px}
+.route-section-title{font-size:27px;margin:35px 0 14px}
+.route-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.route-table,.time-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5ded2;border-radius:16px;overflow:hidden}
+.route-table th,.route-table td,.time-table th,.time-table td{padding:11px 12px;border-bottom:1px solid #ece5da;vertical-align:top;text-align:left;font-size:12.5px;line-height:1.55}
+.route-table th,.time-table th{background:#10251f;color:#fff;font-weight:700}
+.route-table tr:last-child td,.time-table tr:last-child td{border-bottom:0}
+.route-day{background:#fff;border:1px solid #e4ddd1;border-radius:22px;margin:15px 0;overflow:hidden;box-shadow:0 10px 27px rgba(20,36,30,.05)}
+.route-day-head{display:flex;justify-content:space-between;gap:15px;padding:20px 22px;background:#fffdf9;border-bottom:1px solid #eee7dc}
+.route-date{font-size:13px;color:#ad4d39;font-weight:800}.route-day-head h3{font-size:22px;margin:3px 0 0}
+.route-day-meta{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;align-items:center}.route-day-meta span{font-size:11px;border-radius:999px;background:#eef2ef;color:#315447;padding:6px 8px}
+.route-day-scroll{overflow-x:auto}.time-table{border:0;border-radius:0}.time-table th{background:#f4f0e8;color:#10251f}.t-time{font-weight:800;color:#ad4d39;white-space:nowrap;width:90px}.t-note{font-size:11.5px;color:#6a7571;margin-top:3px}
+.route-day-bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #eee7dc}.route-day-bottom>div{padding:16px 18px;border-right:1px solid #eee7dc}.route-day-bottom>div:last-child{border-right:0}.route-day-bottom p{font-size:12.5px;line-height:1.65;color:#596660;margin:5px 0 0}
+.route-total-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}.route-total-grid>div{background:#10251f;color:#fff;border-radius:17px;padding:18px}.route-total-grid small{display:block;color:#bfcac6}.route-total-grid b{font-size:22px;display:block;margin-top:4px}
+.route-callout{background:#fff;border-left:4px solid #d69a35;border-radius:0 16px 16px 0;padding:18px 20px;margin:16px 0;line-height:1.7;color:#50605b}
+.booking-priority{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.booking-priority div{background:#fff;border:1px solid #e5ded2;border-radius:16px;padding:15px}.booking-priority b{display:block;margin-bottom:5px}
+.verified-links{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.verified-links a{font-size:11px;padding:6px 8px;border-radius:999px;background:#eef2ef;color:#315447;text-decoration:none}
+.route-strip{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#52615c;font-size:13px;margin:12px 0}.route-strip i{font-style:normal;color:#ad4d39;font-weight:800}
+@media(max-width:900px){
+ .compare-strip.three,.route-hero{grid-template-columns:1fr}
+ .route-metrics{grid-template-columns:1fr 1fr}
+ .route-day-bottom{grid-template-columns:1fr}.route-day-bottom>div{border-right:0;border-bottom:1px solid #eee7dc}.route-day-bottom>div:last-child{border-bottom:0}
+ .booking-priority{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+ .route-tabs{top:0;border-radius:14px}.route-tab-btn{flex:0 0 82vw;min-width:82vw}
+ .route-day-head{flex-direction:column}.route-day-meta{justify-content:flex-start}
+ .route-table{min-width:830px}.time-table{min-width:760px}
+ .route-total-grid{grid-template-columns:1fr}
+}
+</style>
+<meta content="#10251f" name="theme-color"/></head>
 <body>
-  <h1>Post Master</h1>
-  <p><a href="/privacy.html">Privacy Policy</a></p>
-  <p><a href="/terms.html">Terms of Service</a></p>
+<header class="hero">
+<div class="hero-in">
+<div class="kicker">Canada · Fall 2026 · Travel Handbook</div>
+<h1>Rockies Gold<br/>→ Québec Red</h1>
+<p>2026.09.25 — 10.06｜三套可执行路线：一套强化落基山与魁北克秋色，一套加入 Vancouver 温哥华、Toronto 多伦多 与 Niagara Falls 尼亚加拉瀑布。</p>
+<div class="hero-meta">
+<span class="pill">湖泊 · Larch · Icefields Parkway 冰原大道</span>
+<span class="pill">Montréal 蒙特利尔 · Québec City 魁北克城 · Autumn Foliage</span>
+<span class="pill">Art · Indigenous Culture · Historic Churches</span>
+</div>
+</div>
+</header>
+<section class="section">
+<div class="eyebrow">Route Comparison</div>
+<h2>三条路线，一页比较</h2>
+<p class="lead">三套方案均为 <b>不自驾</b>，且保留 Banff 核心湖泊、Larch 与2026交通规则。差别是：方案1追求“湖 + 枫叶 + Québec文化”；方案2加入 Toronto / Niagara；方案3彻底转为加西深度并加入 Glacier View Lodge + Jasper。</p>
+<div class="compare-strip three">
+<article class="compare-card"><h3>方案 1 · Rockies + Montréal + Québec</h3><div class="route-line">Calgary → Banff → Montréal → Québec City</div><span class="badge">最符合原始需求</span><span class="badge">Onhwa’ Lumina ✅</span><span class="badge">Québec红叶最完整</span><ul><li>Rockies 5个完整体验日</li><li>Montréal 1.5天</li><li>Québec 2.5天</li><li><b>推荐舒适预算约 ¥39k–45k/人</b></li></ul></article>
+<article class="compare-card"><h3>方案 2 · Rockies + Toronto + Niagara + Québec</h3><div class="route-line">Calgary → Banff → Toronto → Niagara → Québec City</div><span class="badge">第一次加拿大名片版</span><span class="badge">Niagara游船</span><span class="badge">Toronto Islands</span><ul><li>不再安排 Montréal 观光</li><li>Toronto 2天 / 3晚</li><li>Québec 1.5天</li><li><b>推荐舒适预算约 ¥38k–44k/人</b></li></ul></article>
+<article class="compare-card"><h3>方案 3 · Vancouver + Rockies + Glacier View + Jasper</h3><div class="route-line">Vancouver → Banff → Columbia Icefield → Jasper → Vancouver</div><span class="badge">自然景观最强</span><span class="badge">Spirit Island</span><span class="badge">Glacier overnight</span><ul><li>完全不去加东</li><li>Banff 4.5天</li><li>Glacier View 1晚</li><li>Jasper 3晚</li><li><b>推荐舒适预算约 ¥38k–44k/人</b></li></ul></article>
+</div>
+</section>
+<section class="section" style="background:#ebe6dc">
+<div class="wrap">
+<div class="eyebrow">Interactive Canada Map</div>
+<h2>先看地理关系</h2>
+<p class="lead">点击地点后，地图会移动到对应区域。红色虚线为主要飞行段，金色实线为主要自驾 / 地面交通段。</p>
+<div class="map-shell">
+<div class="map-nav">
+<h3 style="font-size:25px">Route Map</h3>
+<p>地图同时标出两个版本涉及的主要节点。</p>
+<div id="mapButtons"></div>
+</div>
+<div style="position:relative">
+<div id="map"></div>
+<div class="legend"><div><span class="dot flight"></span>Flight</div><div><span class="dot drive"></span>Road / Rail</div></div>
+</div>
+</div>
+</div>
+</section><section class="section" id="weather-guide" style="background:#ebe6dc">
+<div class="wrap">
+<div class="eyebrow">Weather · Temperature · Clothing</div>
+<h2>9/25–10/6 天气 &amp; 穿衣速查</h2>
+<p class="lead">以下为这段时间的历史气候参考，实际出发前仍需看短期预报。Rockies 海拔高、昼夜温差大，9月底已经可能遇到降雪或结冰。</p>
+<div class="weather-strip">
+<article class="weather-card"><h3>Vancouver 温哥华</h3><div class="weather-temp">约 11–18°C</div><p>温和、可能有雨。长裤 + T恤/薄针织 + 轻薄防水外套即可。</p></article>
+<article class="weather-card"><h3>Banff 班夫</h3><div class="weather-temp">约 0–16°C</div><p>早晚很冷、温差明显。保暖内层 + 抓绒/薄羽绒 + 防风防水外壳。</p></article>
+<article class="weather-card"><h3>Lake Louise 露易丝湖</h3><div class="weather-temp">约 -2–14°C</div><p>清晨可能低于0°C。看湖或徒步建议薄羽绒、帽子和手套。</p></article>
+<article class="weather-card"><h3>Icefields Parkway 冰原大道</h3><div class="weather-temp">约 -3–10°C</div><p>风大、变化快，可能有雪/结冰。薄羽绒 + 防水硬壳，车内备额外保暖层。</p></article>
+<article class="weather-card"><h3>Toronto 多伦多</h3><div class="weather-temp">约 8–18°C</div><p>典型初秋。长裤 + 长袖/针织 + 轻外套即可。</p></article>
+<article class="weather-card"><h3>Montréal 蒙特利尔</h3><div class="weather-temp">约 4–13°C</div><p>早晚明显偏凉，可能下雨。毛衣/针织 + 中等厚度外套。</p></article>
+<article class="weather-card"><h3>Québec City 魁北克城</h3><div class="weather-temp">约 2–12°C</div><p>比蒙特利尔更凉。毛衣/抓绒 + 中等外套，郊区建议随身带薄羽绒。</p></article>
+</div>
+<div class="weather-note"><b>最简单的打包原则：</b>整趟采用“洋葱式分层”。城市秋装即可；Rockies 额外准备薄羽绒或抓绒、防风防水外壳、徒步鞋、帽子和手套。</div>
+</div>
+</section>
+<section class="section">
+<div class="eyebrow">Detailed Itinerary · 3 Options</div>
+<h2>三个完整方案：按小时、住宿、餐食、交通与花费对比</h2>
+<p class="lead">所有时间均按 <b>2026/9/25–10/6</b> 设计；国际航班尚未出票的日期采用“目标到达/出发窗口”。一旦最终航班确定，只需要微调转场日，核心景点日不动。</p>
+<div class="route-tabs">
+<button class="route-tab-btn active" data-route="r1" type="button">方案1 · Rockies + Montréal + Québec</button>
+<button class="route-tab-btn" data-route="r2" type="button">方案2 · Rockies + Toronto + Niagara + Québec</button>
+<button class="route-tab-btn" data-route="r3" type="button">方案3 · Vancouver + Rockies + Glacier View + Jasper</button>
+</div>
+<section class="route-tab-panel active" id="route-r1">
+<div class="route-hero">
+<div class="route-hero-main"><div class="eyebrow">OPTION 1 · 9/10</div><h3>Rockies + Montréal + Québec</h3>
+<div class="route-strip">Calgary <i>→</i> Banff <i>→</i> Montréal <i>→</i> Québec City</div>
+<p>最符合最初“湖 + 枫叶 +《鬼怪》+ 当地文化”的版本。Rockies不去Jasper，因此能把10月初黄金红叶窗口留给Québec，并且10/3正好赶上Onhwa’ Lumina。</p>
+<div class="route-badges"><span>不自驾</span><span>Onhwa ✅</span><span>Jacques-Cartier ✅</span><span>Montréal美术馆 ✅</span></div>
+<div class="route-metrics"><div class="route-metric"><small>Rockies</small><b>6晚 / 5天</b></div><div class="route-metric"><small>Montréal</small><b>2晚</b></div><div class="route-metric"><small>Québec</small><b>3晚</b></div><div class="route-metric"><small>舒适预算</small><b>¥39–45k</b></div></div>
+</div>
+<aside class="route-side"><h3>最适合</h3><ul><li>第一次看加拿大，但不追求城市“集邮”</li><li>湖泊 + Larch + 大面积红叶优先</li><li>喜欢教堂、美术馆、历史街区</li><li>愿意接受一次跨加拿大长飞行</li></ul><h3>主要取舍</h3><ul><li>不去Vancouver / Toronto / Niagara / Jasper</li><li>Banff downtown住宿贵</li></ul></aside>
+</div>
+<h3 class="route-section-title">住宿安排</h3><div class="route-scroll"><table class="route-table"><thead><tr><th>住宿</th><th>住几晚 / 日期</th><th>当前工作价</th><th>为什么选</th><th>替代</th></tr></thead><tbody><tr><td><b>Peaks Hotel &amp; Suites</b></td><td>9/25–10/1 · 6晚</td><td>9/27当前约 C$774/晚（未税）</td><td>Tripadvisor 4.7；Downtown、Banff Station约6min步行；无车最适合</td><td>Moose Hotel；若价格过高改Banff Park Lodge / Downtown Canmore</td></tr><tr><td><b>Moose Hotel &amp; Suites</b></td><td>Banff升级备选</td><td>工作预算多在 C$800–1,200/晚</td><td>Rooftop hot pools、IGA近、很多tour可酒店pickup</td><td>如果比Peaks只贵≤C$100/晚，可升级</td></tr><tr><td><b>Hôtel Nelligan</b></td><td>10/1–10/3 · 2晚</td><td>10/3当前约 C$713–725/晚未税</td><td>Old Montréal位置极佳；短住不浪费交通</td><td>Place d’Armes / 更便宜Old Montréal酒店</td></tr><tr><td><b>Hotel 71</b></td><td>10/3–10/6 · 3晚</td><td>工作预算约 C$350–500/晚</td><td>Petit-Champlain附近；Gare du Palais约13min步行</td><td>Auberge Saint-Antoine（更贵更有体验）</td></tr></tbody></table></div>
+<h3 class="route-section-title">每天按小时执行</h3>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/25 Fri</div><h3>Hong Kong 香港 → Calgary 卡尔加里 → Banff 班夫</h3></div>
+<div class="route-day-meta"><span>住宿：Peaks Hotel &amp; Suites / Moose Hotel</span><span>固定活动/交通：Airporter C$88.90；晚餐 C$35–55</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">航班选择</td><td><b>目标选择 <b>15:30前落地 YYC</b> 的国际行程</b><div class="t-note">这样能留60分钟入境/取行李，并有多班机场接驳可选。</div></td><td>国际航班</td><td>已计入机票预算</td></tr><tr><td class="t-time">落地后 60min</td><td><b>入境、取行李、补水/电话卡</b><div class="t-note">国际到达建议至少预留60分钟到接驳柜台。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">17:30 / 18:30</td><td><b>Banff Airporter → Banff</b><div class="t-note">官方固定班次；17:30→19:30、18:30→20:30。若当天 FlixBus 时间正好匹配可改用更便宜的 FlixBus。</div></td><td>Airport shuttle</td><td>C$88.90</td></tr><tr><td class="t-time">19:30–20:30</td><td><b>酒店 Check-in + Banff Avenue 蓝调散步</b><div class="t-note">小红书真实游客反馈：Banff Town 傍晚/blue hour 本身很有旅行感，不必再塞景点。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">20:15–21:15</td><td><b>轻松晚餐</b><div class="t-note">第一晚不排重餐，优先 Pizzeria Sophia 或就近简餐。</div></td><td>步行</td><td>C$35–55</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Pizzeria Sophia：徒步前一晚适合披萨/意面；如果航班晚到，直接酒店附近吃，不做硬预约。</p></div>
+<div><b>🎟 预订重点</b><p>国际机票一旦确定，第一件事是根据落地时间锁 Airporter/FlixBus。Peaks 16:00起入住；晚到无影响。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果航班17:00以后才落地：直接选择20:30或22:30 Airporter，取消Banff晚间安排。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/26 Sat</div><h3>Lake Minnewanka 明尼旺卡湖 + Two Jack Lake 双杰克湖 + Hot Springs</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Cruise≈C$75；Hot Springs C$19.75；Route 6 同日 Cruise 票可免费</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:30–08:30</td><td><b>早餐 + Banff IGA补给</b><div class="t-note">Moose附近IGA很方便；买水、能量棒、第二天湖区零食。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">08:45–09:20</td><td><b>Banff Downtown → Lake Minnewanka</b><div class="t-note">搭 Roam Route 6，车程约25分钟；9/7–10/4仍运营。</div></td><td>Roam Route 6</td><td>同日预购Cruise可免费</td></tr><tr><td class="t-time">09:20–09:45</td><td><b>湖边散步 + Cruise check-in</b><div class="t-note">官方要求至少提前15分钟到码头报到。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">10:00–11:00</td><td><b>Classic Cruise</b><div class="t-note">9/18–10/12营业时段10:00–17:00；预留约1小时。</div></td><td>游船</td><td>≈C$75</td></tr><tr><td class="t-time">11:10–11:50</td><td><b>Lake Minnewanka 湖岸</b><div class="t-note">拍码头/山谷，不要下船立刻走。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:00–13:00</td><td><b>Two Jack Lake</b><div class="t-note">Route 6沿线停靠；停约45–60分钟。</div></td><td>Roam Route 6</td><td>免费/含通票</td></tr><tr><td class="t-time">13:30–14:30</td><td><b>回Banff + 午餐</b><div class="t-note">回镇后简单午餐，下午保留体力。</div></td><td>Roam + 步行</td><td>C$20–35</td></tr><tr><td class="t-time">15:00–16:30</td><td><b>Banff Town / Bow Falls / Surprise Corner择一</b><div class="t-note">以轻松为主；不必全部打卡。</div></td><td>步行/短程公交</td><td>0–C$5</td></tr><tr><td class="t-time">17:15–18:45</td><td><b>Banff Upper Hot Springs</b><div class="t-note">官方10:00–22:00；成人C$19.75。</div></td><td>Roam / taxi</td><td>C$19.75</td></tr><tr><td class="t-time">19:30–21:00</td><td><b>The Bison Restaurant 晚餐</b><div class="t-note">加拿大regional food体验夜。</div></td><td>步行</td><td>C$75–120</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>The Bison：建议 Bison Tartare + Braised Bison Short Rib / Steak Frites。两人可控制在 C$160–230 before tip。</p></div>
+<div><b>🎟 预订重点</b><p>The Bison 周末建议提前1–2周订；Cruise 先订10:00或10:30时段，再围绕它排Route 6。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果阴雨：Cruise照常可玩；Hot Springs反而更舒服。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/27 Sun</div><h3>Moraine Lake 梦莲湖 + Lake Louise 露易丝湖</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Roam Super Pass C$30 + C$3 booking fee；Chuck’s C$100–160</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">05:40–06:00</td><td><b>从酒店步行到 Banff High School Transit Hub</b><div class="t-note">Super Pass官方要求整组提前20分钟到站。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">06:15–07:00</td><td><b>Reserved 8X → Lake Louise Lakeshore</b><div class="t-note">订票时优先选择<b>最早可用时段</b>；具体班次以预订页为准。</div></td><td>Roam 8X</td><td>Super Pass内</td></tr><tr><td class="t-time">抵达后立即</td><td><b>Lake Connector → Moraine Lake</b><div class="t-note">Connector约每30分钟一班；不接受预约。</div></td><td>Parks Canada Connector</td><td>Super Pass内</td></tr><tr><td class="t-time">08:00–10:30</td><td><b>Moraine Lake + Rockpile Trail</b><div class="t-note">小红书与Tripadvisor一致：Rockpile是核心视角；预留2–2.5h，不只拍湖。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">10:30–11:00</td><td><b>Connector → Lake Louise</b><div class="t-note">尽量避开午后才去Moraine；最后去Moraine的Connector是16:30。</div></td><td>Shuttle</td><td>Super Pass内</td></tr><tr><td class="t-time">11:00–14:15</td><td><b>Lake Louise</b><div class="t-note">湖岸 + Fairmont区域；两湖本身按真实游客经验合计至少5h。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:15–13:00</td><td><b>Lake Louise午餐</b><div class="t-note">用grab-and-go/简单午餐，不建议今天排正式下午茶。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">14:30–16:30</td><td><b>湖岸继续 / 轻量步道</b><div class="t-note"><b>不默认加Lake Agnes</b>：第二天还有Larch hike；只有体力非常强才临时升级。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">16:30–17:45</td><td><b>8X 返回 Banff</b><div class="t-note">按预订的回程班次提前排队。</div></td><td>Roam 8X</td><td>Super Pass内</td></tr><tr><td class="t-time">18:30–20:30</td><td><b>Chuck’s Steakhouse</b><div class="t-note">本次固定 Steak Night。</div></td><td>步行</td><td>C$100–160</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Chuck’s：Alberta beef；多人可问当日 sharing/platter。主菜+side+饮料建议按C$100–160/人预留。</p></div>
+<div><b>🎟 预订重点</b><p><b>Super Pass现在就订。</b> 2026 9–10月批次已开放；成人C$30，必须从Banff出发，迟到预约会失效。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如Moraine因天气临时封路：把当天重点转Lake Louise；按退改规则处理，不要强行改成walk-up 8X。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/28 Mon</div><h3>Larch Valley 落叶松谷 / Sentinel Pass 哨兵山口</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Super Pass C$30；晚餐 C$35–60</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">05:40–06:00</td><td><b>Banff Transit Hub集合</b><div class="t-note">继续使用第二天独立Super Pass。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">最早可订8X</td><td><b>Banff → Lake Louise → Moraine</b><div class="t-note">尽量拿最早班；今天的重点是徒步，不是湖区拍照。</div></td><td>Roam + Connector</td><td>C$30</td></tr><tr><td class="t-time">08:00–08:20</td><td><b>Moraine Trailhead准备</b><div class="t-note">洗手间、补水、熊安全信息。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">08:20–13:30</td><td><b>Larch Valley Hike</b><div class="t-note">基础版约4–5h；如果体力强、路况好再加 Sentinel Pass，总计约5.5–7h。</div></td><td>徒步</td><td>免费</td></tr><tr><td class="t-time">13:30–14:00</td><td><b>自带午餐</b><div class="t-note">山上吃；务必前一天买好。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">14:00–15:00</td><td><b>Moraine Lake慢走/休息</b><div class="t-note">把湖区第二次访问当恢复，不再赶点。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">15:00–17:30</td><td><b>Connector + 8X 返回 Banff</b><div class="t-note">保留足够buffer，不追最后一班。</div></td><td>Roam</td><td>Super Pass内</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>Block Kitchen + Bar / Seoul Country 二选一</b><div class="t-note">想吃亚洲fusion选Block；想吃汤/米饭选韩餐。</div></td><td>步行</td><td>C$35–75</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Block：Korean fried chicken、bao、gyoza、small plates；空间小，<b>偏walk-in</b>，建议17:00左右早点去。Seoul Country预算更低。</p></div>
+<div><b>🎟 预订重点</b><p>第二张Super Pass也要提前订；不要以为一张pass能跨两天。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果9/28大风/降雪：Larch可与9/30 Yoho互换；这是本方案预留的核心天气机动。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/29 Tue</div><h3>Icefields Parkway 冰原大道 + Columbia Icefield 哥伦比亚冰原</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Discover Banff Tours C$360/成人起；午餐含</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:20</td><td><b>早餐</b><div class="t-note">今天11小时长线，必须吃早餐。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">07:30–07:50</td><td><b>酒店/指定点等pickup</b><div class="t-note">官方含Banff hotel pickup。</div></td><td>Tour vehicle</td><td>含</td></tr><tr><td class="t-time">08:00</td><td><b>Columbia Icefield Tour 出发</b><div class="t-note">官方固定Banff 08:00发车。</div></td><td>小团巴士</td><td>C$360起</td></tr><tr><td class="t-time">09:30–11:30</td><td><b>Icefields Parkway沿线</b><div class="t-note">含Bow Lake、Peyto Lake（视access）或Waterfowl等摄影停靠。</div></td><td>小团巴士</td><td>含</td></tr><tr><td class="t-time">12:00–15:30</td><td><b>Columbia Icefield核心体验</b><div class="t-note">Ice Explorer上Athabasca Glacier + Glacier Skywalk；picnic lunch已含。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">15:30–18:30</td><td><b>返程 + 沿线摄影</b><div class="t-note">不要在回程车上睡全程；光线会变。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">约19:00</td><td><b>回Banff</b><div class="t-note">官方总时长约11h。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">19:30–20:30</td><td><b>简单晚餐</b><div class="t-note">今天不安排正式餐厅。</div></td><td>步行</td><td>C$30–50</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>晚餐选Pizzeria Sophia或就近comfort food；长途回来不建议再订Chuck’s/Bison。</p></div>
+<div><b>🎟 预订重点</b><p>这个tour是本方案最贵的单项之一，建议行程一确定就锁；官方Free 72 Hour Cancellation。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>天气差仍可运行，但Peyto等部分停靠可能调整；官方tour本身比自行拼交通稳。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/30 Wed</div><h3>Yoho 幽鹤国家公园：Emerald Lake + Natural Bridge + 瀑布；晚间 Gondola</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Yoho一日团约C$123–160；Gondola票价动态</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:20</td><td><b>早餐</b><div class="t-note">今天选能给Emerald较长停留的Yoho产品。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">07:30左右</td><td><b>Banff pickup / meeting</b><div class="t-note">Tripadvisor/Viator可见Yoho &amp; Kootenay产品约07:30开团。</div></td><td>小团</td><td>约C$123–160</td></tr><tr><td class="t-time">09:00–11:00</td><td><b>Emerald Lake 翡翠湖</b><div class="t-note">真实游客建议<b>越早越好</b>；优先选能给1.5–2h停留的线路。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">11:15–11:35</td><td><b>Natural Bridge 天然桥</b><div class="t-note">约15–20min足够。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">12:00–15:30</td><td><b>Wapta / Takakkaw / Marble Canyon依产品</b><div class="t-note">根据最终产品选择；不要同时追求所有点。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">16:30–17:30</td><td><b>回 Banff</b><div class="t-note">把17:30后留给Gondola。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">18:00–20:15</td><td><b>Banff Gondola sunset / blue hour</b><div class="t-note">9/8–10/12营业9:00–21:00，最后上行19:30。9月底日落前后最值得。</div></td><td>Roam/taxi + gondola</td><td>动态约C$70–90</td></tr><tr><td class="t-time">20:30–21:30</td><td><b>轻晚餐</b><div class="t-note">Pizzeria Sophia / Banff Avenue。</div></td><td>步行</td><td>C$30–50</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>如果Gondola要吃Sky Bistro，只在Yoho tour确认准时回Banff后才订；否则不要用不可退餐位卡死。</p></div>
+<div><b>🎟 预订重点</b><p>Yoho tour建议选Tripadvisor近期评价稳定、明确写Emerald/Natural Bridge停留时长的产品。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果前两天某个湖天气极差，今天可以牺牲Gondola，把下午作为补景；不必为了“全打卡”降低核心体验。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/1 Thu</div><h3>Banff → Calgary → Montréal 蒙特利尔</h3></div>
+<div class="route-day-meta"><span>住宿：Hôtel Nelligan / Place d’Armes</span><span>固定活动/交通：Airporter C$88.90 + YYC→YUL约C$180–300+行李</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:30</td><td><b>早餐 + check-out</b><div class="t-note">行李尽量前一晚整理。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">08:00–10:00</td><td><b>Banff Airporter → YYC</b><div class="t-note">官方08:00→10:00；建议订<b>13:00以后</b>的YYC→YUL航班。</div></td><td>Airporter</td><td>C$88.90</td></tr><tr><td class="t-time">10:00–12:15</td><td><b>机场值机/午餐</b><div class="t-note">国内飞行也留足行李时间。</div></td><td>步行</td><td>C$20–30</td></tr><tr><td class="t-time">13:00–17:00 MT</td><td><b>YYC → YUL</b><div class="t-note">飞行约4h；Montréal快2小时，落地当地约19:00左右。</div></td><td>国内航班</td><td>约C$180–300+</td></tr><tr><td class="t-time">19:30–20:15</td><td><b>到Old Montréal酒店</b><div class="t-note">推荐直接住老城，省掉短住期间地铁往返。</div></td><td>taxi/ride-share</td><td>C$25–45</td></tr><tr><td class="t-time">20:30–21:30</td><td><b>轻晚餐</b><div class="t-note">第一晚不硬塞正式餐；如果航班准点可去Modavie late seating。</div></td><td>步行</td><td>C$40–80</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>如果准点且有胃口：Modavie；否则酒店附近法餐/轻食。</p></div>
+<div><b>🎟 预订重点</b><p>国内航班一定按“含托运行李总价”比价，不看裸票。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>若Banff→YYC路况导致延误：08:00 Airporter给13:00后航班仍有约3h buffer。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/2 Fri</div><h3>Montréal 蒙特利尔：Old Montréal + Basilica + 美术馆</h3></div>
+<div class="route-day-meta"><span>住宿：Montréal</span><span>固定活动/交通：文化门票约C$30–60；餐饮C$80–130</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">08:00–09:00</td><td><b>早餐</b><div class="t-note">Old Montréal咖啡馆。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">09:00–10:00</td><td><b>Old Montréal晨间步行</b><div class="t-note">Place d’Armes、Saint-Paul周边；先看空城。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">10:00–11:15</td><td><b>Notre-Dame Basilica</b><div class="t-note">Tripadvisor Montréal #1；参观本身&lt;1h，预留75min含排队。</div></td><td>步行</td><td>约C$16–20</td></tr><tr><td class="t-time">11:30–12:45</td><td><b>午餐</b><div class="t-note">不要把Old Port单独安排成大景点。</div></td><td>步行</td><td>C$25–40</td></tr><tr><td class="t-time">13:15–16:00</td><td><b>Montréal Museum of Fine Arts</b><div class="t-note">你偏艺术，基线选择MMFA而不是再逛商业街。</div></td><td>地铁/taxi</td><td>约C$25–35</td></tr><tr><td class="t-time">16:30–18:30</td><td><b>天气好：Mount Royal；天气差：咖啡馆/继续MMFA</b><div class="t-note">秋色+城市view。</div></td><td>步行/taxi</td><td>C$0–20</td></tr><tr><td class="t-time">19:30–21:30</td><td><b>Modavie 晚餐 + live jazz</b><div class="t-note">Tripadvisor大样本稳定。</div></td><td>步行</td><td>C$70–110</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Modavie：lamb chops/法式加拿大小菜；正式晚餐预算C$70–110/人。</p></div>
+<div><b>🎟 预订重点</b><p>Notre-Dame白天参观固定；<b>AURA灯光秀不主动安排</b>，因为真实游客评价分化明显。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果天气晴朗，Mount Royal优先；如果下雨，就把美术馆看完整。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/3 Sat</div><h3>Montréal → Québec City 魁北克城 + Onhwa’ Lumina</h3></div>
+<div class="route-day-meta"><span>住宿：Hotel 71 / Auberge Saint-Antoine</span><span>固定活动/交通：VIA约C$50–100；Onhwa C$33.75+tax；taxi约C$25–35/程</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:30</td><td><b>早餐 + check-out</b><div class="t-note">从Old Montréal去Gare Centrale方便。</div></td><td>步行/taxi</td><td>C$15–25</td></tr><tr><td class="t-time">07:35–08:00</td><td><b>到 Montréal Central Station</b><div class="t-note">建议搭最早一批VIA。</div></td><td>步行/taxi</td><td>C$10–20</td></tr><tr><td class="t-time">08:11–11:47</td><td><b>VIA #22（目标班次）→ Québec City</b><div class="t-note">VIA当前时刻示例：08:11→11:47，约3h36；最终以10/3出票页为准。</div></td><td>VIA Rail</td><td>约C$50–100</td></tr><tr><td class="t-time">12:00–12:30</td><td><b>Hotel 71寄存行李</b><div class="t-note">Gare du Palais到Hotel71可步行/短taxi。</div></td><td>步行/taxi</td><td>C$0–15</td></tr><tr><td class="t-time">12:30–13:30</td><td><b>Le Lapin Sauté 午餐</b><div class="t-note">Petit-Champlain里解决。</div></td><td>步行</td><td>C$40–70</td></tr><tr><td class="t-time">13:30–16:45</td><td><b>Old Québec 第一轮</b><div class="t-note">Petit-Champlain → Funicular → Dufferin Terrace → Château Frontenac → Basilica。</div></td><td>步行+funicular</td><td>C$6–7+</td></tr><tr><td class="t-time">16:45–17:30</td><td><b>早晚餐/补能量</b><div class="t-note">Onhwa前不要吃太晚。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">17:35–18:10</td><td><b>Taxi → Wendake</b><div class="t-note">留足交通buffer。</div></td><td>taxi</td><td>约C$25–35/车</td></tr><tr><td class="t-time">18:40–20:00</td><td><b>Onhwa’ Lumina</b><div class="t-note">2026仅10/2、10/3开放；成人C$33.75+tax。</div></td><td>步行沉浸体验</td><td>C$33.75+tax</td></tr><tr><td class="t-time">20:00–20:30</td><td><b>Taxi回Old Québec</b><div class="t-note">回酒店休息。</div></td><td>taxi</td><td>约C$25–35/车</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>午餐Le Lapin Sauté：rabbit poutine可尝；晚上Onhwa前吃轻一点。</p></div>
+<div><b>🎟 预订重点</b><p><b>Onhwa 10/3的18:40场优先锁。</b> 这是方案1独有优势；10/4–10/8不开。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果10/3下大雨：Onhwa仍按官方政策判断是否运行；Old Québec室内项目可前后调。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/4 Sun</div><h3>《鬼怪》取景 + Notre-Dame de Québec + Île d’Orléans 奥尔良岛 Taste Trail</h3></div>
+<div class="route-day-meta"><span>住宿：Québec City</span><span>固定活动/交通：Île d’Orléans Taste Trail C$89；餐饮C$60–100</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:45–08:45</td><td><b>早餐</b><div class="t-note">酒店/Old Québec。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">09:00–11:30</td><td><b>《鬼怪》取景路线</b><div class="t-note">Château Frontenac / Dufferin Terrace / Petit-Champlain等，拍照比昨日更从容。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">11:30–12:30</td><td><b>Notre-Dame de Québec + Place Royale</b><div class="t-note">教堂并入老城步行。</div></td><td>步行</td><td>捐赠/低门票</td></tr><tr><td class="t-time">12:30–13:20</td><td><b>午餐</b><div class="t-note">14:00团前不要排慢餐。</div></td><td>步行</td><td>C$25–40</td></tr><tr><td class="t-time">13:40</td><td><b>到 8 rue du Jardin / Horloge du Jura</b><div class="t-note">官方要求提前10–15min。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">14:00–17:00</td><td><b>Island of Orléans Taste Trail</b><div class="t-note">官方2026：每日10:00和14:00；5个tastings，cider/wine/chocolate/nougat等。</div></td><td>小巴团</td><td>C$89</td></tr><tr><td class="t-time">17:00–18:00</td><td><b>回Old Québec / 休息</b><div class="t-note">回酒店。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>Québec正式晚餐</b><div class="t-note">根据胃口选Le Lapin Sauté / 酒店餐厅。</div></td><td>步行</td><td>C$50–90</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>白天Taste Trail已经有tastings，晚餐不要再安排太重。</p></div>
+<div><b>🎟 预订重点</b><p>Taste Trail周末建议提前订；Tripadvisor 4.6 / 500+评价量，适合无车。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果天气极佳且你更想看红叶，可把岛上tour和10/5 Jacques-Cartier互换，但10/5是最后完整日。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/5 Mon</div><h3>Jacques-Cartier National Park 雅克-卡蒂埃国家公园 红叶日</h3></div>
+<div class="route-day-meta"><span>住宿：Québec City</span><span>固定活动/交通：Quatre Natures shuttle C$39.90+tax；公园门票自动随订票处理</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:30–08:15</td><td><b>早餐 + 徒步准备</b><div class="t-note">带水、保暖层、午餐。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">08:35–08:50</td><td><b>步行到 Fontaine de Tourny</b><div class="t-note">官方9:00发车。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">09:00–09:45</td><td><b>Québec City → Jacques-Cartier</b><div class="t-note">Quatre Natures直达km10。</div></td><td>shuttle</td><td>C$39.90+tax</td></tr><tr><td class="t-time">09:45–12:30</td><td><b>峡谷秋色徒步</b><div class="t-note">选择中轻度路线；不要只在游客中心。</div></td><td>徒步</td><td>公园费按订单</td></tr><tr><td class="t-time">12:30–13:00</td><td><b>自带午餐</b><div class="t-note">园内时间更值钱。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">13:00–16:00</td><td><b>第二段步道 / 河谷观景</b><div class="t-note">10月初红叶主菜。</div></td><td>徒步</td><td>—</td></tr><tr><td class="t-time">16:30–17:15</td><td><b>Shuttle 返回 Québec City</b><div class="t-note">官方5/1–10/30为16:30离园。</div></td><td>shuttle</td><td>已含</td></tr><tr><td class="t-time">18:00–19:30</td><td><b>早晚餐 + 整理行李</b><div class="t-note">第二天国际回程，今晚不要太晚。</div></td><td>步行</td><td>C$40–70</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>晚餐简单即可，优先离Hotel71近。</p></div>
+<div><b>🎟 预订重点</b><p>Quatre Natures需提前付全款；7天内取消通常不退，天气风险自己权衡。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>这一天就是方案1相对方案2最大的优势：完整大面积Québec红叶日。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/6 Tue</div><h3>Québec City → Montréal / YUL → Hong Kong</h3></div>
+<div class="route-day-meta"><span>住宿：—</span><span>固定活动/交通：按国际票组合</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">航班策略</td><td><b>首选把 <b>YQB→YUL</b> feeder 与 YUL→HKG 开在同一张票</b><div class="t-note">这样行李直挂/延误保护更好。</div></td><td>国内接驳航班</td><td>看票价</td></tr><tr><td class="t-time">若必须地面转移</td><td><b>至少给 Québec→Montréal + 去YUL 留 <b>5小时以上</b></b><div class="t-note">VIA平均3h26，另加车站→机场和国际值机。</div></td><td>VIA + taxi/bus</td><td>C$60–130</td></tr><tr><td class="t-time">国际航班前3h</td><td><b>抵达YUL</b><div class="t-note">不要用紧张的“火车到站后1.5h飞国际”组合。</div></td><td>—</td><td>—</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>机场餐解决。</p></div>
+<div><b>🎟 预订重点</b><p>国际机票最终出票时，优先选YQB联程；如果YUL直飞/转机票便宜很多，再单独算地面转移。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>若返程航班很早，建议10/5晚直接移到Montréal机场附近；会牺牲Québec最后一晚。</p></div>
+</div>
+</article>
+<h3 class="route-section-title">餐厅安排</h3><div class="route-scroll"><table class="route-table"><thead><tr><th>餐厅</th><th>安排在哪天</th><th>预约</th><th>预算/人</th><th>推荐点</th></tr></thead><tbody><tr><td><b>The Bison</b></td><td>9/26</td><td>提前1–2周；周末更早</td><td>C$75–120</td><td>Bison tartare / short rib / steak frites</td></tr><tr><td><b>Chuck’s Steakhouse</b></td><td>9/27</td><td><b>现在就订</b>；周末2–4周</td><td>C$100–160+</td><td>Alberta beef / sharing platter</td></tr><tr><td><b>Block Kitchen + Bar</b></td><td>9/28</td><td>偏walk-in；建议17:00左右早去</td><td>C$45–75</td><td>Korean fried chicken / bao / small plates</td></tr><tr><td><b>Pizzeria Sophia</b></td><td>9/25或9/29</td><td>热门时段可预约/早去</td><td>C$35–55</td><td>pizza + pasta</td></tr><tr><td><b>Modavie</b></td><td>10/2</td><td>提前1–2周</td><td>C$70–110</td><td>lamb chops / French-Canadian + jazz</td></tr><tr><td><b>Le Lapin Sauté</b></td><td>10/3午餐</td><td>周末建议预约</td><td>C$40–70</td><td>rabbit poutine / duck-rabbit dishes</td></tr></tbody></table></div>
+<h3 class="route-section-title">预订优先级</h3>
+<div class="booking-priority">
+<div><b>① 现在就订：Banff酒店</b>Peaks / Moose 9月底房价波动最大；可免费取消价优先。</div>
+<div><b>② 现在就订：Roam Super Pass × 2天</b>9/27两湖、9/28 Larch；成人C$30/日，必须Banff出发。</div>
+<div><b>③ Icefields + Yoho tours</b>9/29和9/30；天气敏感但热门日期会满。</div>
+<div><b>④ Chuck’s / The Bison</b>周末餐厅先锁，再排其他walk-in。</div>
+<div><b>⑤ VIA + Onhwa</b>10/3目标08:11 VIA、18:40 Onhwa。</div>
+<div><b>⑥ Orleans + Jacques shuttle</b>10/4 14:00 Taste Trail；10/5 09:00 Jacques shuttle。</div>
+</div>
+<h3 class="route-section-title">总预算</h3>
+<div class="route-scroll"><table class="route-table budget-route"><thead><tr><th>项目</th><th>每人预算</th><th>说明</th></tr></thead><tbody><tr><td>国际机票</td><td>约 ¥7,000</td><td>按你已知水平</td></tr><tr><td>住宿（两人分摊）</td><td>约 ¥15,500–20,500</td><td>Banff downtown是最大变量；Nelligan也偏贵</td></tr><tr><td>加拿大国内飞机/火车/机场接驳</td><td>约 ¥3,000–4,500</td><td>YYC→YUL、Airporter、VIA等</td></tr><tr><td>Rockies tours / shuttle / 门票</td><td>约 ¥4,500–6,000</td><td>2×Super Pass、Cruise、Icefields、Yoho、Gondola等</td></tr><tr><td>Québec活动</td><td>约 ¥800–1,500</td><td>Onhwa + Orleans + Jacques-Cartier shuttle</td></tr><tr><td>餐饮</td><td>约 ¥5,000–7,000</td><td>含3–4顿正式餐</td></tr><tr><td>杂费/Taxi</td><td>约 ¥1,000–1,500</td><td>城市短taxi、咖啡、小费</td></tr></tbody></table></div>
+<div class="route-total-grid">
+<div><small>性价比执行</small><b>约 ¥34k–38k</b></div>
+<div><small>推荐舒适执行</small><b>约 ¥39k–45k</b></div>
+<div><small>升级型</small><b>¥46k+</b></div>
+</div>
+<div class="route-callout"><b>方案1为什么排第一：</b>Rockies核心完整，同时只用一次跨加拿大飞行换来Québec红叶和法语文化；真正牺牲的是Jasper，而不是把Banff压成2–3天。</div>
+<div class="verified-links"><a href="https://roamtransit.com/fares/reservations/super-pass-reservations/" rel="noopener" target="_blank">Roam Super Pass 2026</a><a href="https://banfftours.com/activities/columbia-icefield-tour/" rel="noopener" target="_blank">Icefields Tour 2026</a><a href="https://banffairporter.com/schedule-rates/" rel="noopener" target="_blank">Banff Airporter</a><a href="https://www.viarail.ca/en/explore-our-destinations/trains/ontario-and-quebec/montreal-quebec-city" rel="noopener" target="_blank">VIA Montréal–Québec</a><a href="https://tourismewendake.ca/onhwalumina/horaire-tarif/" rel="noopener" target="_blank">Onhwa’ Lumina 2026</a><a href="https://quatrenatures.com/shuttle-bus/shuttle-bus-jacques-cartier-national-park/" rel="noopener" target="_blank">Jacques-Cartier Shuttle</a></div>
+</section>
+<section class="route-tab-panel" id="route-r2">
+<div class="route-hero">
+<div class="route-hero-main"><div class="eyebrow">OPTION 2 · 7/10</div><h3>Rockies + Toronto + Niagara + Québec</h3>
+<div class="route-strip">Calgary <i>→</i> Banff <i>→</i> Toronto <i>→</i> Niagara <i>→</i> Québec City</div>
+<p>把“第一次加拿大著名名片”补齐，但为了减少交通，正式删掉Montréal观光。Toronto给整天，Niagara给整天，Québec保留1.5天。</p>
+<div class="route-badges"><span>不自驾</span><span>Toronto Islands ✅</span><span>Niagara Boat ✅</span><span>Onhwa ❌</span></div>
+<div class="route-metrics"><div class="route-metric"><small>Rockies</small><b>6晚</b></div><div class="route-metric"><small>Toronto</small><b>3晚</b></div><div class="route-metric"><small>Québec</small><b>2晚</b></div><div class="route-metric"><small>舒适预算</small><b>¥38–44k</b></div></div>
+</div>
+<aside class="route-side"><h3>最适合</h3><ul><li>第一次加拿大想看“最出名”的城市/瀑布</li><li>愿意牺牲部分Québec红叶深度</li><li>喜欢AGO、城市skyline</li></ul><h3>主要取舍</h3><ul><li>Jacques-Cartier完整红叶日 ❌</li><li>Onhwa’ Lumina ❌</li><li>Montréal只作为可能的国际转机地</li></ul></aside>
+</div>
+<h3 class="route-section-title">住宿安排</h3><div class="route-scroll"><table class="route-table"><thead><tr><th>住宿</th><th>住几晚 / 日期</th><th>当前工作价</th><th>为什么选</th><th>替代</th></tr></thead><tbody><tr><td><b>Peaks Hotel / Moose</b></td><td>9/25–10/1 · 6晚</td><td>Peaks 9/27当前约C$774未税</td><td>同方案1；无车Rockies核心基地</td><td>价格过高改Banff Park Lodge / Downtown Canmore</td></tr><tr><td><b>One King West</b></td><td>10/1–10/4 · 3晚</td><td>10/1 C$316；10/2 C$339；10/3 C$311（Trivago趋势）</td><td>Downtown/Union方便；去Niagara和机场都顺</td><td>类似Downtown 4★酒店</td></tr><tr><td><b>Hotel 71</b></td><td>10/4–10/6 · 2晚</td><td>工作预算C$350–500/晚</td><td>Old Québec步行核心</td><td>Auberge Saint-Antoine升级</td></tr></tbody></table></div>
+<h3 class="route-section-title">每天按小时执行</h3>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/25 Fri</div><h3>Hong Kong 香港 → Calgary 卡尔加里 → Banff 班夫</h3></div>
+<div class="route-day-meta"><span>住宿：Peaks Hotel &amp; Suites / Moose Hotel</span><span>固定活动/交通：Airporter C$88.90；晚餐 C$35–55</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">航班选择</td><td><b>目标选择 <b>15:30前落地 YYC</b> 的国际行程</b><div class="t-note">这样能留60分钟入境/取行李，并有多班机场接驳可选。</div></td><td>国际航班</td><td>已计入机票预算</td></tr><tr><td class="t-time">落地后 60min</td><td><b>入境、取行李、补水/电话卡</b><div class="t-note">国际到达建议至少预留60分钟到接驳柜台。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">17:30 / 18:30</td><td><b>Banff Airporter → Banff</b><div class="t-note">官方固定班次；17:30→19:30、18:30→20:30。若当天 FlixBus 时间正好匹配可改用更便宜的 FlixBus。</div></td><td>Airport shuttle</td><td>C$88.90</td></tr><tr><td class="t-time">19:30–20:30</td><td><b>酒店 Check-in + Banff Avenue 蓝调散步</b><div class="t-note">小红书真实游客反馈：Banff Town 傍晚/blue hour 本身很有旅行感，不必再塞景点。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">20:15–21:15</td><td><b>轻松晚餐</b><div class="t-note">第一晚不排重餐，优先 Pizzeria Sophia 或就近简餐。</div></td><td>步行</td><td>C$35–55</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Pizzeria Sophia：徒步前一晚适合披萨/意面；如果航班晚到，直接酒店附近吃，不做硬预约。</p></div>
+<div><b>🎟 预订重点</b><p>国际机票一旦确定，第一件事是根据落地时间锁 Airporter/FlixBus。Peaks 16:00起入住；晚到无影响。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果航班17:00以后才落地：直接选择20:30或22:30 Airporter，取消Banff晚间安排。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/26 Sat</div><h3>Lake Minnewanka 明尼旺卡湖 + Two Jack Lake 双杰克湖 + Hot Springs</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Cruise≈C$75；Hot Springs C$19.75；Route 6 同日 Cruise 票可免费</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:30–08:30</td><td><b>早餐 + Banff IGA补给</b><div class="t-note">Moose附近IGA很方便；买水、能量棒、第二天湖区零食。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">08:45–09:20</td><td><b>Banff Downtown → Lake Minnewanka</b><div class="t-note">搭 Roam Route 6，车程约25分钟；9/7–10/4仍运营。</div></td><td>Roam Route 6</td><td>同日预购Cruise可免费</td></tr><tr><td class="t-time">09:20–09:45</td><td><b>湖边散步 + Cruise check-in</b><div class="t-note">官方要求至少提前15分钟到码头报到。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">10:00–11:00</td><td><b>Classic Cruise</b><div class="t-note">9/18–10/12营业时段10:00–17:00；预留约1小时。</div></td><td>游船</td><td>≈C$75</td></tr><tr><td class="t-time">11:10–11:50</td><td><b>Lake Minnewanka 湖岸</b><div class="t-note">拍码头/山谷，不要下船立刻走。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:00–13:00</td><td><b>Two Jack Lake</b><div class="t-note">Route 6沿线停靠；停约45–60分钟。</div></td><td>Roam Route 6</td><td>免费/含通票</td></tr><tr><td class="t-time">13:30–14:30</td><td><b>回Banff + 午餐</b><div class="t-note">回镇后简单午餐，下午保留体力。</div></td><td>Roam + 步行</td><td>C$20–35</td></tr><tr><td class="t-time">15:00–16:30</td><td><b>Banff Town / Bow Falls / Surprise Corner择一</b><div class="t-note">以轻松为主；不必全部打卡。</div></td><td>步行/短程公交</td><td>0–C$5</td></tr><tr><td class="t-time">17:15–18:45</td><td><b>Banff Upper Hot Springs</b><div class="t-note">官方10:00–22:00；成人C$19.75。</div></td><td>Roam / taxi</td><td>C$19.75</td></tr><tr><td class="t-time">19:30–21:00</td><td><b>The Bison Restaurant 晚餐</b><div class="t-note">加拿大regional food体验夜。</div></td><td>步行</td><td>C$75–120</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>The Bison：建议 Bison Tartare + Braised Bison Short Rib / Steak Frites。两人可控制在 C$160–230 before tip。</p></div>
+<div><b>🎟 预订重点</b><p>The Bison 周末建议提前1–2周订；Cruise 先订10:00或10:30时段，再围绕它排Route 6。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果阴雨：Cruise照常可玩；Hot Springs反而更舒服。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/27 Sun</div><h3>Moraine Lake 梦莲湖 + Lake Louise 露易丝湖</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Roam Super Pass C$30 + C$3 booking fee；Chuck’s C$100–160</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">05:40–06:00</td><td><b>从酒店步行到 Banff High School Transit Hub</b><div class="t-note">Super Pass官方要求整组提前20分钟到站。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">06:15–07:00</td><td><b>Reserved 8X → Lake Louise Lakeshore</b><div class="t-note">订票时优先选择<b>最早可用时段</b>；具体班次以预订页为准。</div></td><td>Roam 8X</td><td>Super Pass内</td></tr><tr><td class="t-time">抵达后立即</td><td><b>Lake Connector → Moraine Lake</b><div class="t-note">Connector约每30分钟一班；不接受预约。</div></td><td>Parks Canada Connector</td><td>Super Pass内</td></tr><tr><td class="t-time">08:00–10:30</td><td><b>Moraine Lake + Rockpile Trail</b><div class="t-note">小红书与Tripadvisor一致：Rockpile是核心视角；预留2–2.5h，不只拍湖。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">10:30–11:00</td><td><b>Connector → Lake Louise</b><div class="t-note">尽量避开午后才去Moraine；最后去Moraine的Connector是16:30。</div></td><td>Shuttle</td><td>Super Pass内</td></tr><tr><td class="t-time">11:00–14:15</td><td><b>Lake Louise</b><div class="t-note">湖岸 + Fairmont区域；两湖本身按真实游客经验合计至少5h。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:15–13:00</td><td><b>Lake Louise午餐</b><div class="t-note">用grab-and-go/简单午餐，不建议今天排正式下午茶。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">14:30–16:30</td><td><b>湖岸继续 / 轻量步道</b><div class="t-note"><b>不默认加Lake Agnes</b>：第二天还有Larch hike；只有体力非常强才临时升级。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">16:30–17:45</td><td><b>8X 返回 Banff</b><div class="t-note">按预订的回程班次提前排队。</div></td><td>Roam 8X</td><td>Super Pass内</td></tr><tr><td class="t-time">18:30–20:30</td><td><b>Chuck’s Steakhouse</b><div class="t-note">本次固定 Steak Night。</div></td><td>步行</td><td>C$100–160</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Chuck’s：Alberta beef；多人可问当日 sharing/platter。主菜+side+饮料建议按C$100–160/人预留。</p></div>
+<div><b>🎟 预订重点</b><p><b>Super Pass现在就订。</b> 2026 9–10月批次已开放；成人C$30，必须从Banff出发，迟到预约会失效。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如Moraine因天气临时封路：把当天重点转Lake Louise；按退改规则处理，不要强行改成walk-up 8X。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/28 Mon</div><h3>Larch Valley 落叶松谷 / Sentinel Pass 哨兵山口</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Super Pass C$30；晚餐 C$35–60</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">05:40–06:00</td><td><b>Banff Transit Hub集合</b><div class="t-note">继续使用第二天独立Super Pass。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">最早可订8X</td><td><b>Banff → Lake Louise → Moraine</b><div class="t-note">尽量拿最早班；今天的重点是徒步，不是湖区拍照。</div></td><td>Roam + Connector</td><td>C$30</td></tr><tr><td class="t-time">08:00–08:20</td><td><b>Moraine Trailhead准备</b><div class="t-note">洗手间、补水、熊安全信息。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">08:20–13:30</td><td><b>Larch Valley Hike</b><div class="t-note">基础版约4–5h；如果体力强、路况好再加 Sentinel Pass，总计约5.5–7h。</div></td><td>徒步</td><td>免费</td></tr><tr><td class="t-time">13:30–14:00</td><td><b>自带午餐</b><div class="t-note">山上吃；务必前一天买好。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">14:00–15:00</td><td><b>Moraine Lake慢走/休息</b><div class="t-note">把湖区第二次访问当恢复，不再赶点。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">15:00–17:30</td><td><b>Connector + 8X 返回 Banff</b><div class="t-note">保留足够buffer，不追最后一班。</div></td><td>Roam</td><td>Super Pass内</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>Block Kitchen + Bar / Seoul Country 二选一</b><div class="t-note">想吃亚洲fusion选Block；想吃汤/米饭选韩餐。</div></td><td>步行</td><td>C$35–75</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Block：Korean fried chicken、bao、gyoza、small plates；空间小，<b>偏walk-in</b>，建议17:00左右早点去。Seoul Country预算更低。</p></div>
+<div><b>🎟 预订重点</b><p>第二张Super Pass也要提前订；不要以为一张pass能跨两天。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果9/28大风/降雪：Larch可与9/30 Yoho互换；这是本方案预留的核心天气机动。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/29 Tue</div><h3>Icefields Parkway 冰原大道 + Columbia Icefield 哥伦比亚冰原</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Discover Banff Tours C$360/成人起；午餐含</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:20</td><td><b>早餐</b><div class="t-note">今天11小时长线，必须吃早餐。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">07:30–07:50</td><td><b>酒店/指定点等pickup</b><div class="t-note">官方含Banff hotel pickup。</div></td><td>Tour vehicle</td><td>含</td></tr><tr><td class="t-time">08:00</td><td><b>Columbia Icefield Tour 出发</b><div class="t-note">官方固定Banff 08:00发车。</div></td><td>小团巴士</td><td>C$360起</td></tr><tr><td class="t-time">09:30–11:30</td><td><b>Icefields Parkway沿线</b><div class="t-note">含Bow Lake、Peyto Lake（视access）或Waterfowl等摄影停靠。</div></td><td>小团巴士</td><td>含</td></tr><tr><td class="t-time">12:00–15:30</td><td><b>Columbia Icefield核心体验</b><div class="t-note">Ice Explorer上Athabasca Glacier + Glacier Skywalk；picnic lunch已含。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">15:30–18:30</td><td><b>返程 + 沿线摄影</b><div class="t-note">不要在回程车上睡全程；光线会变。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">约19:00</td><td><b>回Banff</b><div class="t-note">官方总时长约11h。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">19:30–20:30</td><td><b>简单晚餐</b><div class="t-note">今天不安排正式餐厅。</div></td><td>步行</td><td>C$30–50</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>晚餐选Pizzeria Sophia或就近comfort food；长途回来不建议再订Chuck’s/Bison。</p></div>
+<div><b>🎟 预订重点</b><p>这个tour是本方案最贵的单项之一，建议行程一确定就锁；官方Free 72 Hour Cancellation。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>天气差仍可运行，但Peyto等部分停靠可能调整；官方tour本身比自行拼交通稳。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/30 Wed</div><h3>Yoho 幽鹤国家公园：Emerald Lake + Natural Bridge + 瀑布；晚间 Gondola</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Yoho一日团约C$123–160；Gondola票价动态</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:20</td><td><b>早餐</b><div class="t-note">今天选能给Emerald较长停留的Yoho产品。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">07:30左右</td><td><b>Banff pickup / meeting</b><div class="t-note">Tripadvisor/Viator可见Yoho &amp; Kootenay产品约07:30开团。</div></td><td>小团</td><td>约C$123–160</td></tr><tr><td class="t-time">09:00–11:00</td><td><b>Emerald Lake 翡翠湖</b><div class="t-note">真实游客建议<b>越早越好</b>；优先选能给1.5–2h停留的线路。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">11:15–11:35</td><td><b>Natural Bridge 天然桥</b><div class="t-note">约15–20min足够。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">12:00–15:30</td><td><b>Wapta / Takakkaw / Marble Canyon依产品</b><div class="t-note">根据最终产品选择；不要同时追求所有点。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">16:30–17:30</td><td><b>回 Banff</b><div class="t-note">把17:30后留给Gondola。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">18:00–20:15</td><td><b>Banff Gondola sunset / blue hour</b><div class="t-note">9/8–10/12营业9:00–21:00，最后上行19:30。9月底日落前后最值得。</div></td><td>Roam/taxi + gondola</td><td>动态约C$70–90</td></tr><tr><td class="t-time">20:30–21:30</td><td><b>轻晚餐</b><div class="t-note">Pizzeria Sophia / Banff Avenue。</div></td><td>步行</td><td>C$30–50</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>如果Gondola要吃Sky Bistro，只在Yoho tour确认准时回Banff后才订；否则不要用不可退餐位卡死。</p></div>
+<div><b>🎟 预订重点</b><p>Yoho tour建议选Tripadvisor近期评价稳定、明确写Emerald/Natural Bridge停留时长的产品。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果前两天某个湖天气极差，今天可以牺牲Gondola，把下午作为补景；不必为了“全打卡”降低核心体验。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/1 Thu</div><h3>Banff → Calgary → Toronto 多伦多</h3></div>
+<div class="route-day-meta"><span>住宿：One King West Hotel &amp; Residence</span><span>固定活动/交通：Airporter C$88.90；YYC→YYZ约C$180–300+行李</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:30</td><td><b>早餐 + check-out</b><div class="t-note">同方案1。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">08:00–10:00</td><td><b>Banff Airporter → YYC</b><div class="t-note">选13:00后航班。</div></td><td>Airporter</td><td>C$88.90</td></tr><tr><td class="t-time">13:00–16:45 MT</td><td><b>YYC → YYZ</b><div class="t-note">飞行约3h45；Toronto快2小时，落地约18:45 ET。</div></td><td>国内航班</td><td>C$180–300+</td></tr><tr><td class="t-time">19:30–20:15</td><td><b>YYZ → Downtown</b><div class="t-note">UP Express / taxi；One King West靠近Union区域。</div></td><td>UP/taxi</td><td>C$13–60</td></tr><tr><td class="t-time">20:30–21:30</td><td><b>酒店附近晚餐</b><div class="t-note">不要今晚再安排CN Tower。</div></td><td>步行</td><td>C$35–60</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>酒店附近轻食即可；正式Toronto晚餐放10/2。</p></div>
+<div><b>🎟 预订重点</b><p>One King West 10/1当前Trivago约C$316/房，属于这趟相对“便宜”的大城市住宿。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果YYC航班延误，晚上只check-in，不影响10/2完整城市日。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/2 Fri</div><h3>Toronto 多伦多：St. Lawrence Market + AGO + Toronto Islands + CN Tower</h3></div>
+<div class="route-day-meta"><span>住宿：Toronto</span><span>固定活动/交通：AGO约C$30；Water Taxi/Ferry约C$15–25；CN Tower动态</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">08:00–09:15</td><td><b>St. Lawrence Market 早餐</b><div class="t-note">Tripadvisor Toronto #1；把早餐时间变成景点。</div></td><td>步行</td><td>C$15–30</td></tr><tr><td class="t-time">09:30–10:30</td><td><b>Old Toronto / 市中心步行</b><div class="t-note">向AGO方向移动。</div></td><td>步行/街车</td><td>C$0–4</td></tr><tr><td class="t-time">10:30–13:00</td><td><b>AGO 安大略美术馆</b><div class="t-note">你偏艺术，优先于ROM；预留2.5h。</div></td><td>步行/Transit</td><td>约C$30</td></tr><tr><td class="t-time">13:00–13:45</td><td><b>轻午餐</b><div class="t-note">去湖岛前吃简单。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">14:00–16:45</td><td><b>Toronto Islands</b><div class="t-note">沿用XHS + Tripadvisor共同认可玩法：<b>Water Taxi去、City Ferry回</b>看skyline。</div></td><td>Water taxi + ferry</td><td>约C$15–25</td></tr><tr><td class="t-time">17:15–19:15</td><td><b>CN Tower sunset / blue hour</b><div class="t-note">天气清晰才上；如果低云就不强求。</div></td><td>步行</td><td>动态约C$45–55</td></tr><tr><td class="t-time">20:00–21:45</td><td><b>Richmond Station 晚餐</b><div class="t-note">Toronto正式餐。</div></td><td>步行/Transit</td><td>C$70–120</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Richmond Station：seasonal Canadian；建议订20:00或20:30，避开CN Tower后赶场。</p></div>
+<div><b>🎟 预订重点</b><p>AGO门票和CN Tower可提前订；CN Tower尽量选可调整/当天看天气的票种。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>雨天：Toronto Islands替换为Distillery District或ROM；不要在雨里硬坐船。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/3 Sat</div><h3>Niagara Falls 尼亚加拉瀑布 + Voyage to the Falls</h3></div>
+<div class="route-day-meta"><span>住宿：Toronto</span><span>固定活动/交通：GO/WEGO约C$34组合票参考；Boat C$47.95起</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:30–07:00</td><td><b>早餐/带走咖啡</b><div class="t-note">今天早出。</div></td><td>步行</td><td>C$10–20</td></tr><tr><td class="t-time">07:15–09:45</td><td><b>Union Station → Niagara Falls</b><div class="t-note">GO 2026秋季周末具体班次需出发前再次确认；按2–2.5h量级预留。</div></td><td>GO Train</td><td>约C$20–34</td></tr><tr><td class="t-time">10:00–10:30</td><td><b>WEGO/步行到Falls area</b><div class="t-note">先直奔游船，避免午后排队。</div></td><td>WEGO</td><td>套票/小额</td></tr><tr><td class="t-time">10:30–11:15</td><td><b>Voyage to the Falls</b><div class="t-note">官方20分钟近瀑；提前30min报到。</div></td><td>Niagara City Cruises</td><td>C$47.95起</td></tr><tr><td class="t-time">11:15–12:15</td><td><b>Horseshoe Falls / Table Rock</b><div class="t-note">岸上核心view。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:15–13:15</td><td><b>午餐</b><div class="t-note">Fallsview附近，控制时间。</div></td><td>步行</td><td>C$25–45</td></tr><tr><td class="t-time">13:30–14:45</td><td><b>Journey Behind the Falls（可选）</b><div class="t-note">若船已经满足，可以把这段改成Niagara Parkway慢走。</div></td><td>步行</td><td>约C$25–35</td></tr><tr><td class="t-time">15:15–18:00</td><td><b>Niagara → Toronto</b><div class="t-note">不要安排当晚再飞Montréal；新版方案2留Toronto第三晚。</div></td><td>GO</td><td>约C$20–34</td></tr><tr><td class="t-time">19:00–20:30</td><td><b>Pai / Downtown晚餐</b><div class="t-note">第二晚正式餐可吃亚洲口味。</div></td><td>Transit</td><td>C$35–65</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>如果想吃轻松些：Pai Northern Thai；如果前一天Richmond已很重，今天就简单。</p></div>
+<div><b>🎟 预订重点</b><p>Boat固定要订；Tripadvisor + XHS一致认为“只岸上看”不如加游船。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>大风/停船：改Journey Behind the Falls + Niagara Parkway；不要为了船取消整天。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/4 Sun</div><h3>Toronto → Québec City 魁北克城 + Old Québec</h3></div>
+<div class="route-day-meta"><span>住宿：Hotel 71</span><span>固定活动/交通：YYZ/YTZ→YQB约C$150–300；Old Québec低门票</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:30–07:15</td><td><b>早餐 + check-out</b><div class="t-note">目标订早班直飞Québec。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">07:30–09:30窗口</td><td><b>Toronto → Québec City</b><div class="t-note">优先选直飞YQB；不要再经Montréal折腾。</div></td><td>国内航班</td><td>C$150–300</td></tr><tr><td class="t-time">10:00–11:00</td><td><b>YQB → Hotel 71</b><div class="t-note">放行李。</div></td><td>taxi</td><td>约C$35–45/车</td></tr><tr><td class="t-time">11:30–12:30</td><td><b>Petit-Champlain 午餐</b><div class="t-note">抵达后先吃饭。</div></td><td>步行</td><td>C$30–50</td></tr><tr><td class="t-time">12:30–16:30</td><td><b>Old Québec + 《鬼怪》</b><div class="t-note">Funicular → Dufferin Terrace → Château Frontenac → Basilica → Place Royale。</div></td><td>步行</td><td>C$6–7+</td></tr><tr><td class="t-time">16:30–18:00</td><td><b>咖啡/休息</b><div class="t-note">不用当天再去Wendake。</div></td><td>步行</td><td>C$10–20</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>Québec晚餐</b><div class="t-note">Le Lapin Sauté / 酒店餐厅。</div></td><td>步行</td><td>C$50–90</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Le Lapin Sauté：作为Québec特色餐；不需要再塞另一家名店。</p></div>
+<div><b>🎟 预订重点</b><p>机票优先订直飞YQB；一旦确定，方案2整体会比旧版Toronto→Niagara→Montréal舒服很多。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>Onhwa’ Lumina此方案放弃，因为10/3人在Niagara，10/4不开。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/5 Mon</div><h3>Québec City 魁北克城 + Île d’Orléans 奥尔良岛</h3></div>
+<div class="route-day-meta"><span>住宿：Québec City</span><span>固定活动/交通：Island Taste Trail C$89；餐饮C$60–100</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">08:00–09:00</td><td><b>早餐</b><div class="t-note">老城慢早餐。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">09:00–11:30</td><td><b>《鬼怪》补拍 + Notre-Dame de Québec</b><div class="t-note">把前一天没拍好的光线补回来。</div></td><td>步行</td><td>免费/低门票</td></tr><tr><td class="t-time">11:30–12:30</td><td><b>午餐</b><div class="t-note">下午14:00出团。</div></td><td>步行</td><td>C$25–40</td></tr><tr><td class="t-time">13:40</td><td><b>到8 rue du Jardin集合</b><div class="t-note">提前10–15min。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">14:00–17:00</td><td><b>Île d’Orléans Taste Trail</b><div class="t-note">5个tastings，秋季苹果/cider氛围最契合。</div></td><td>小巴</td><td>C$89</td></tr><tr><td class="t-time">17:15–18:15</td><td><b>回酒店/整理</b><div class="t-note">明天国际回程。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>最后晚餐</b><div class="t-note">轻松一点。</div></td><td>步行</td><td>C$40–70</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>因为下午已有tasting，晚餐不建议安排fine dining。</p></div>
+<div><b>🎟 预订重点</b><p>这个方案不再硬塞Wendake/Jacques-Cartier；这是为了让Toronto+Niagara真正可执行。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果你最后更在乎红叶而不是Orleans美食：可把Taste Trail换Jacques-Cartier shuttle，但不可能两者都完整。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/6 Tue</div><h3>Québec City → Montréal / YUL → Hong Kong</h3></div>
+<div class="route-day-meta"><span>住宿：—</span><span>固定活动/交通：按国际票组合</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">航班策略</td><td><b>首选把 <b>YQB→YUL</b> feeder 与 YUL→HKG 开在同一张票</b><div class="t-note">这样行李直挂/延误保护更好。</div></td><td>国内接驳航班</td><td>看票价</td></tr><tr><td class="t-time">若必须地面转移</td><td><b>至少给 Québec→Montréal + 去YUL 留 <b>5小时以上</b></b><div class="t-note">VIA平均3h26，另加车站→机场和国际值机。</div></td><td>VIA + taxi/bus</td><td>C$60–130</td></tr><tr><td class="t-time">国际航班前3h</td><td><b>抵达YUL</b><div class="t-note">不要用紧张的“火车到站后1.5h飞国际”组合。</div></td><td>—</td><td>—</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>机场餐解决。</p></div>
+<div><b>🎟 预订重点</b><p>国际机票最终出票时，优先选YQB联程；如果YUL直飞/转机票便宜很多，再单独算地面转移。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>若返程航班很早，建议10/5晚直接移到Montréal机场附近；会牺牲Québec最后一晚。</p></div>
+</div>
+</article>
+<h3 class="route-section-title">餐厅安排</h3><div class="route-scroll"><table class="route-table"><thead><tr><th>餐厅</th><th>安排在哪天</th><th>预约</th><th>预算/人</th><th>推荐点</th></tr></thead><tbody><tr><td><b>The Bison</b></td><td>9/26</td><td>1–2周</td><td>C$75–120</td><td>bison tartare / short rib</td></tr><tr><td><b>Chuck’s</b></td><td>9/27</td><td>2–4周</td><td>C$100–160+</td><td>Alberta beef</td></tr><tr><td><b>Block / Seoul Country</b></td><td>9/28</td><td>Block walk-in；韩餐1–3天</td><td>C$35–75</td><td>亚洲胃恢复</td></tr><tr><td><b>Richmond Station</b></td><td>10/2</td><td>建议1–2周</td><td>C$70–120</td><td>seasonal Canadian</td></tr><tr><td><b>Pai Northern Thai</b></td><td>10/3</td><td>热门时段提前订/排队</td><td>C$35–65</td><td>Northern Thai</td></tr><tr><td><b>Le Lapin Sauté</b></td><td>10/4</td><td>周末建议预约</td><td>C$40–70</td><td>rabbit poutine</td></tr></tbody></table></div>
+<h3 class="route-section-title">预订优先级</h3>
+<div class="booking-priority">
+<div><b>① Banff部分</b>与方案1完全相同：酒店、2×Super Pass、Icefields、Yoho、Chuck’s。</div>
+<div><b>② Toronto 3晚酒店</b>One King West当前10/1–3价格相对稳定，先锁可退。</div>
+<div><b>③ Niagara boat</b>10/3固定Voyage to the Falls，C$47.95起。</div>
+<div><b>④ Toronto→Québec直飞</b>10/4选早班直飞YQB，避免再绕Montréal。</div>
+<div><b>⑤ AGO / CN Tower</b>AGO固定；CN Tower看天气再决定是否提前锁不可退票。</div>
+<div><b>⑥ Orleans Taste Trail</b>10/5 14:00。</div>
+</div>
+<h3 class="route-section-title">总预算</h3>
+<div class="route-scroll"><table class="route-table budget-route"><thead><tr><th>项目</th><th>每人预算</th><th>说明</th></tr></thead><tbody><tr><td>国际机票</td><td>约 ¥7,000</td><td>按已知价格</td></tr><tr><td>住宿（两人分摊）</td><td>约 ¥14,000–19,500</td><td>Banff仍是最大头；Toronto相对便宜</td></tr><tr><td>加拿大国内飞机/GO/机场接驳</td><td>约 ¥4,000–5,500</td><td>YYC→YYZ、Toronto→YQB、GO、Airporter</td></tr><tr><td>Rockies tours / shuttle</td><td>约 ¥4,500–6,000</td><td>与方案1类似</td></tr><tr><td>Toronto / Niagara门票</td><td>约 ¥800–1,300</td><td>AGO、CN Tower、Boat、可选Journey</td></tr><tr><td>Québec活动</td><td>约 ¥400–700</td><td>Orleans Taste Trail</td></tr><tr><td>餐饮</td><td>约 ¥5,000–7,000</td><td>Toronto多一顿正式餐</td></tr><tr><td>杂费</td><td>约 ¥1,000–1,500</td><td>城市交通/小费</td></tr></tbody></table></div>
+<div class="route-total-grid">
+<div><small>性价比执行</small><b>约 ¥34k–38k</b></div>
+<div><small>推荐舒适执行</small><b>约 ¥38k–44k</b></div>
+<div><small>升级型</small><b>¥45k+</b></div>
+</div>
+<div class="route-callout"><b>方案2的合理化关键：</b>不再做旧版“Niagara当天再赶Montréal”。现在Toronto住3晚，10/3只做Niagara往返，10/4直飞Québec，舒适度明显提高。</div>
+<div class="verified-links"><a href="https://www.toronto.ca/explore-enjoy/toronto-island-ferries/ferry-routes-schedules/" rel="noopener" target="_blank">Toronto Island Ferries 2026</a><a href="https://niagaracitycruises.com/tickets/voyage-to-the-falls-boat-tour/" rel="noopener" target="_blank">Niagara City Cruises</a><a href="https://www.gotransit.com/en/partners-and-promotions/toronto-to-niagara-falls-weekday-trips" rel="noopener" target="_blank">GO Niagara</a><a href="https://www.tripadvisor.ca/Attractions-g580448-Activities-c36-Ile_d_Orleans_Quebec.html" rel="noopener" target="_blank">Tripadvisor Île d'Orléans Tours</a></div>
+</section>
+<section class="route-tab-panel" id="route-r3">
+<div class="route-hero">
+<div class="route-hero-main"><div class="eyebrow">OPTION 3 · 9/10</div><h3>Vancouver + Rockies + Glacier View Lodge + Jasper</h3>
+<div class="route-strip">Vancouver <i>→</i> Banff <i>→</i> Columbia Icefield <i>→</i> Jasper <i>→</i> Vancouver</div>
+<p>彻底承认“Rockies本身就是一趟完整旅行”。用Glacier View Lodge把Icefields Parkway从白天tour升级成overnight，再用Maligne Lake / Spirit Island把Jasper真正玩到。</p>
+<div class="route-badges"><span>不自驾</span><span>Glacier overnight ✅</span><span>Spirit Island ✅</span><span>加东 ❌</span></div>
+<div class="route-metrics"><div class="route-metric"><small>Vancouver</small><b>1晚+半天</b></div><div class="route-metric"><small>Banff</small><b>5晚</b></div><div class="route-metric"><small>Glacier</small><b>1晚</b></div><div class="route-metric"><small>Jasper</small><b>3晚</b></div></div>
+</div>
+<aside class="route-side"><h3>最适合</h3><ul><li>城市以后再去，世界级自然优先</li><li>愿意住一次体验型冰川酒店</li><li>想真正看Maligne Lake / Spirit Island</li></ul><h3>主要取舍</h3><ul><li>完全没有Québec红叶/《鬼怪》</li><li>10/1–10/5长距离巴士更多</li><li>Glacier View性价比不高但体验独特</li></ul></aside>
+</div>
+<h3 class="route-section-title">住宿安排</h3><div class="route-scroll"><table class="route-table"><thead><tr><th>住宿</th><th>住几晚 / 日期</th><th>当前工作价</th><th>为什么选</th><th>替代</th></tr></thead><tbody><tr><td><b>Blue Horizon Hotel</b></td><td>9/25 · 1晚</td><td>9/25当前Trivago约C$458/房</td><td>Robson St、Walkability高、Stanley/市区方便</td><td>如果落地很晚可改YVR附近</td></tr><tr><td><b>Peaks / Moose</b></td><td>9/26–10/1 · 5晚</td><td>Peaks 9/27约C$774未税；Moose通常更高</td><td>无车Banff核心基地</td><td>Banff Park Lodge / Downtown Canmore</td></tr><tr><td><b>Glacier View Lodge</b></td><td>10/1 · 1晚</td><td>工作预算C$600–900+/房；package更高</td><td>体验型住宿；October Glacier+Skywalk行程完整</td><td>不住则改Icefields day tour</td></tr><tr><td><b>The Crimson Jasper</b></td><td>10/2–10/5 · 3晚</td><td>10/2≈C$384；10/3≈C$660；10/4≈C$476（Trivago趋势）</td><td>镇中心、SunDog pickup方便</td><td>Athabasca Hotel更便宜但整体体验普通</td></tr><tr><td><b>Fairmont Vancouver Airport</b></td><td>10/5 · 1晚</td><td>10/5当前约C$375未税 / C$440含税参考</td><td>terminal内，10/6返港最稳</td><td>机场附近Radisson Blu</td></tr></tbody></table></div>
+<h3 class="route-section-title">每天按小时执行</h3>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/25 Fri</div><h3>Hong Kong 香港 → Vancouver 温哥华</h3></div>
+<div class="route-day-meta"><span>住宿：Blue Horizon Hotel</span><span>固定活动/交通：酒店当前约C$458/房；晚餐C$80–140</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">国际到达</td><td><b>抵达YVR</b><div class="t-note">尽量选择下午前落地，保证有一个Vancouver evening。</div></td><td>国际航班</td><td>已计入</td></tr><tr><td class="t-time">落地后60–90min</td><td><b>入境 + Canada Line / taxi → Downtown</b><div class="t-note">Blue Horizon在Robson Street。</div></td><td>Canada Line/taxi</td><td>C$10–45</td></tr><tr><td class="t-time">16:00–17:00</td><td><b>Check-in + 休息</b><div class="t-note">酒店15:00起入住。</div></td><td>—</td><td>—</td></tr><tr><td class="t-time">17:00–18:30</td><td><b>English Bay / Stanley Park边缘散步</b><div class="t-note">不在第一天做全套Stanley Park。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">19:30–21:00</td><td><b>Miku 晚餐</b><div class="t-note">Vancouver第一顿正式餐。</div></td><td>Transit/taxi</td><td>C$80–140</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Miku：aburi sushi / seafood；热门晚餐建议提前1–2周。</p></div>
+<div><b>🎟 预订重点</b><p>Blue Horizon 9/25当前Trivago趋势约C$458/房；位置/步行性非常好。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果航班晚到：删掉Stanley/English Bay，只留晚餐或酒店休息。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/26 Sat</div><h3>Vancouver 温哥华半日：Stanley Park + MOA → Calgary → Banff</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：YVR→YYC约C$100–180+行李；Airporter C$88.90</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:15–07:45</td><td><b>早餐</b><div class="t-note">酒店/Robson。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">08:00–09:15</td><td><b>Stanley Park 精华段</b><div class="t-note">只走/骑Seawall一小段，不试图一圈。</div></td><td>步行/taxi</td><td>C$0–20</td></tr><tr><td class="t-time">09:15–09:50</td><td><b>前往 UBC</b><div class="t-note">taxi最省时间。</div></td><td>taxi</td><td>C$25–40/车</td></tr><tr><td class="t-time">10:00–12:00</td><td><b>Museum of Anthropology · UBC</b><div class="t-note">这次Vancouver核心文化项目。</div></td><td>步行</td><td>约C$26</td></tr><tr><td class="t-time">12:00–12:40</td><td><b>UBC轻午餐</b><div class="t-note">不要在市区绕回去。</div></td><td>步行</td><td>C$20–30</td></tr><tr><td class="t-time">12:45–13:20</td><td><b>UBC → YVR</b><div class="t-note">taxi。</div></td><td>taxi</td><td>C$25–40/车</td></tr><tr><td class="t-time">14:15–15:45 PT</td><td><b>YVR → YYC</b><div class="t-note">目标订14:00–15:00窗口直飞；Calgary快1小时，落地约17:00MT。</div></td><td>国内航班</td><td>C$100–180+</td></tr><tr><td class="t-time">18:30–20:30</td><td><b>Banff Airporter → Banff</b><div class="t-note">官方18:30→20:30；若能赶17:30更好。</div></td><td>Airporter</td><td>C$88.90</td></tr><tr><td class="t-time">20:45–21:30</td><td><b>Check-in + 简单晚餐</b><div class="t-note">晚到不订正式餐。</div></td><td>步行</td><td>C$30–50</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>午餐在UBC解决；Banff晚餐简单。</p></div>
+<div><b>🎟 预订重点</b><p>这一天成败取决于YVR→YYC航班时段，目标14:00–15:00最平衡。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果MOA当天参观超时：宁可缩Stanley Park，也不要冒险赶飞机。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/27 Sun</div><h3>Lake Minnewanka 明尼旺卡湖 + Two Jack Lake 双杰克湖 + Hot Springs</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Cruise≈C$75；Hot Springs C$19.75；Route 6 同日 Cruise 票可免费</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:30–08:30</td><td><b>早餐 + Banff IGA补给</b><div class="t-note">Moose附近IGA很方便；买水、能量棒、第二天湖区零食。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">08:45–09:20</td><td><b>Banff Downtown → Lake Minnewanka</b><div class="t-note">搭 Roam Route 6，车程约25分钟；9/7–10/4仍运营。</div></td><td>Roam Route 6</td><td>同日预购Cruise可免费</td></tr><tr><td class="t-time">09:20–09:45</td><td><b>湖边散步 + Cruise check-in</b><div class="t-note">官方要求至少提前15分钟到码头报到。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">10:00–11:00</td><td><b>Classic Cruise</b><div class="t-note">9/18–10/12营业时段10:00–17:00；预留约1小时。</div></td><td>游船</td><td>≈C$75</td></tr><tr><td class="t-time">11:10–11:50</td><td><b>Lake Minnewanka 湖岸</b><div class="t-note">拍码头/山谷，不要下船立刻走。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:00–13:00</td><td><b>Two Jack Lake</b><div class="t-note">Route 6沿线停靠；停约45–60分钟。</div></td><td>Roam Route 6</td><td>免费/含通票</td></tr><tr><td class="t-time">13:30–14:30</td><td><b>回Banff + 午餐</b><div class="t-note">回镇后简单午餐，下午保留体力。</div></td><td>Roam + 步行</td><td>C$20–35</td></tr><tr><td class="t-time">15:00–16:30</td><td><b>Banff Town / Bow Falls / Surprise Corner择一</b><div class="t-note">以轻松为主；不必全部打卡。</div></td><td>步行/短程公交</td><td>0–C$5</td></tr><tr><td class="t-time">17:15–18:45</td><td><b>Banff Upper Hot Springs</b><div class="t-note">官方10:00–22:00；成人C$19.75。</div></td><td>Roam / taxi</td><td>C$19.75</td></tr><tr><td class="t-time">19:30–21:00</td><td><b>The Bison Restaurant 晚餐</b><div class="t-note">加拿大regional food体验夜。</div></td><td>步行</td><td>C$75–120</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>The Bison：建议 Bison Tartare + Braised Bison Short Rib / Steak Frites。两人可控制在 C$160–230 before tip。</p></div>
+<div><b>🎟 预订重点</b><p>The Bison 周末建议提前1–2周订；Cruise 先订10:00或10:30时段，再围绕它排Route 6。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果阴雨：Cruise照常可玩；Hot Springs反而更舒服。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/28 Mon</div><h3>Moraine Lake 梦莲湖 + Lake Louise 露易丝湖</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Roam Super Pass C$30 + C$3 booking fee；Chuck’s C$100–160</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">05:40–06:00</td><td><b>从酒店步行到 Banff High School Transit Hub</b><div class="t-note">Super Pass官方要求整组提前20分钟到站。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">06:15–07:00</td><td><b>Reserved 8X → Lake Louise Lakeshore</b><div class="t-note">订票时优先选择<b>最早可用时段</b>；具体班次以预订页为准。</div></td><td>Roam 8X</td><td>Super Pass内</td></tr><tr><td class="t-time">抵达后立即</td><td><b>Lake Connector → Moraine Lake</b><div class="t-note">Connector约每30分钟一班；不接受预约。</div></td><td>Parks Canada Connector</td><td>Super Pass内</td></tr><tr><td class="t-time">08:00–10:30</td><td><b>Moraine Lake + Rockpile Trail</b><div class="t-note">小红书与Tripadvisor一致：Rockpile是核心视角；预留2–2.5h，不只拍湖。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">10:30–11:00</td><td><b>Connector → Lake Louise</b><div class="t-note">尽量避开午后才去Moraine；最后去Moraine的Connector是16:30。</div></td><td>Shuttle</td><td>Super Pass内</td></tr><tr><td class="t-time">11:00–14:15</td><td><b>Lake Louise</b><div class="t-note">湖岸 + Fairmont区域；两湖本身按真实游客经验合计至少5h。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">12:15–13:00</td><td><b>Lake Louise午餐</b><div class="t-note">用grab-and-go/简单午餐，不建议今天排正式下午茶。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">14:30–16:30</td><td><b>湖岸继续 / 轻量步道</b><div class="t-note"><b>不默认加Lake Agnes</b>：第二天还有Larch hike；只有体力非常强才临时升级。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">16:30–17:45</td><td><b>8X 返回 Banff</b><div class="t-note">按预订的回程班次提前排队。</div></td><td>Roam 8X</td><td>Super Pass内</td></tr><tr><td class="t-time">18:30–20:30</td><td><b>Chuck’s Steakhouse</b><div class="t-note">本次固定 Steak Night。</div></td><td>步行</td><td>C$100–160</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Chuck’s：Alberta beef；多人可问当日 sharing/platter。主菜+side+饮料建议按C$100–160/人预留。</p></div>
+<div><b>🎟 预订重点</b><p><b>Super Pass现在就订。</b> 2026 9–10月批次已开放；成人C$30，必须从Banff出发，迟到预约会失效。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如Moraine因天气临时封路：把当天重点转Lake Louise；按退改规则处理，不要强行改成walk-up 8X。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/29 Tue</div><h3>Larch Valley 落叶松谷 / Sentinel Pass 哨兵山口</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Super Pass C$30；晚餐 C$35–60</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">05:40–06:00</td><td><b>Banff Transit Hub集合</b><div class="t-note">继续使用第二天独立Super Pass。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">最早可订8X</td><td><b>Banff → Lake Louise → Moraine</b><div class="t-note">尽量拿最早班；今天的重点是徒步，不是湖区拍照。</div></td><td>Roam + Connector</td><td>C$30</td></tr><tr><td class="t-time">08:00–08:20</td><td><b>Moraine Trailhead准备</b><div class="t-note">洗手间、补水、熊安全信息。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">08:20–13:30</td><td><b>Larch Valley Hike</b><div class="t-note">基础版约4–5h；如果体力强、路况好再加 Sentinel Pass，总计约5.5–7h。</div></td><td>徒步</td><td>免费</td></tr><tr><td class="t-time">13:30–14:00</td><td><b>自带午餐</b><div class="t-note">山上吃；务必前一天买好。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">14:00–15:00</td><td><b>Moraine Lake慢走/休息</b><div class="t-note">把湖区第二次访问当恢复，不再赶点。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">15:00–17:30</td><td><b>Connector + 8X 返回 Banff</b><div class="t-note">保留足够buffer，不追最后一班。</div></td><td>Roam</td><td>Super Pass内</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>Block Kitchen + Bar / Seoul Country 二选一</b><div class="t-note">想吃亚洲fusion选Block；想吃汤/米饭选韩餐。</div></td><td>步行</td><td>C$35–75</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Block：Korean fried chicken、bao、gyoza、small plates；空间小，<b>偏walk-in</b>，建议17:00左右早点去。Seoul Country预算更低。</p></div>
+<div><b>🎟 预订重点</b><p>第二张Super Pass也要提前订；不要以为一张pass能跨两天。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果9/28大风/降雪：Larch可与9/30 Yoho互换；这是本方案预留的核心天气机动。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">9/30 Wed</div><h3>Yoho 幽鹤国家公园：Emerald Lake + Natural Bridge + 瀑布；晚间 Gondola</h3></div>
+<div class="route-day-meta"><span>住宿：Banff</span><span>固定活动/交通：Yoho一日团约C$123–160；Gondola票价动态</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:45–07:20</td><td><b>早餐</b><div class="t-note">今天选能给Emerald较长停留的Yoho产品。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">07:30左右</td><td><b>Banff pickup / meeting</b><div class="t-note">Tripadvisor/Viator可见Yoho &amp; Kootenay产品约07:30开团。</div></td><td>小团</td><td>约C$123–160</td></tr><tr><td class="t-time">09:00–11:00</td><td><b>Emerald Lake 翡翠湖</b><div class="t-note">真实游客建议<b>越早越好</b>；优先选能给1.5–2h停留的线路。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">11:15–11:35</td><td><b>Natural Bridge 天然桥</b><div class="t-note">约15–20min足够。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">12:00–15:30</td><td><b>Wapta / Takakkaw / Marble Canyon依产品</b><div class="t-note">根据最终产品选择；不要同时追求所有点。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">16:30–17:30</td><td><b>回 Banff</b><div class="t-note">把17:30后留给Gondola。</div></td><td>Tour</td><td>含</td></tr><tr><td class="t-time">18:00–20:15</td><td><b>Banff Gondola sunset / blue hour</b><div class="t-note">9/8–10/12营业9:00–21:00，最后上行19:30。9月底日落前后最值得。</div></td><td>Roam/taxi + gondola</td><td>动态约C$70–90</td></tr><tr><td class="t-time">20:30–21:30</td><td><b>轻晚餐</b><div class="t-note">Pizzeria Sophia / Banff Avenue。</div></td><td>步行</td><td>C$30–50</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>如果Gondola要吃Sky Bistro，只在Yoho tour确认准时回Banff后才订；否则不要用不可退餐位卡死。</p></div>
+<div><b>🎟 预订重点</b><p>Yoho tour建议选Tripadvisor近期评价稳定、明确写Emerald/Natural Bridge停留时长的产品。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果前两天某个湖天气极差，今天可以牺牲Gondola，把下午作为补景；不必为了“全打卡”降低核心体验。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/1 Thu</div><h3>Banff慢上午 → Brewster Express → Glacier View Lodge</h3></div>
+<div class="route-day-meta"><span>住宿：Glacier View Lodge</span><span>固定活动/交通：Brewster Banff→Icefield 票价按checkout；酒店/experience package工作预算C$600–900+/房</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:30–08:30</td><td><b>早餐 + check-out</b><div class="t-note">行李可先寄存。</div></td><td>—</td><td>C$15–25</td></tr><tr><td class="t-time">09:00–10:30</td><td><b>Banff Town / Bow Falls / 咖啡</b><div class="t-note">今天不要再排大景点。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">10:30–11:30</td><td><b>最后补给</b><div class="t-note">Glacier View偏远，提前买零食。</div></td><td>步行</td><td>C$15–30</td></tr><tr><td class="t-time">11:45–12:45</td><td><b>午餐</b><div class="t-note">出发前吃饱。</div></td><td>步行</td><td>C$25–40</td></tr><tr><td class="t-time">13:40</td><td><b>到Brewster Transportation Centre</b><div class="t-note">至少提前20–30min。</div></td><td>步行/taxi</td><td>C$0–10</td></tr><tr><td class="t-time">14:15–17:35</td><td><b>Brewster Express：Banff → Columbia Icefield</b><div class="t-note">官方2026 summer schedule。</div></td><td>Brewster Express</td><td>按checkout</td></tr><tr><td class="t-time">17:35–18:15</td><td><b>Glacier View check-in + Welcome Reception</b><div class="t-note">官方October itinerary：17:00–19:00 welcome reception。</div></td><td>步行</td><td>package内</td></tr><tr><td class="t-time">19:00–21:00</td><td><b>Altitude Restaurant 晚餐</b><div class="t-note">10月package当天不安排Skywalk；Skywalk放到次日glacier之后。</div></td><td>酒店内</td><td>C$70–120</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Altitude Restaurant：景观优先，meal不含在experience package里。</p></div>
+<div><b>🎟 预订重点</b><p>如果选择 Columbia Icefield Guided Experience，10月流程是次日10:00 glacier、之后Skywalk；不要按夏季“夜间Skywalk”旧攻略排。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>这里是方案3的体验升级点：游客大巴离开后留宿冰原，氛围和day tour完全不同。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/2 Fri</div><h3>Athabasca Glacier + Skywalk → Jasper</h3></div>
+<div class="route-day-meta"><span>住宿：The Crimson Jasper</span><span>固定活动/交通：Glacier experience按package；Brewster Icefield→Jasper按checkout</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:00–08:30</td><td><b>Altitude早餐</b><div class="t-note">官方October breakfast service。</div></td><td>酒店内</td><td>C$25–40</td></tr><tr><td class="t-time">09:30</td><td><b>Check-out / 寄存行李</b><div class="t-note">官方要求9:30 check-out。</div></td><td>—</td><td>—</td></tr><tr><td class="t-time">09:45</td><td><b>集合登车</b><div class="t-note">Moraine Lounge集合。</div></td><td>shuttle</td><td>package内</td></tr><tr><td class="t-time">10:00–约11:30</td><td><b>Morning on Athabasca Glacier</b><div class="t-note">Ice Explorer经典版；官方2–3h整体experience。</div></td><td>Ice Explorer</td><td>package内</td></tr><tr><td class="t-time">11:30–13:00</td><td><b>Skywalk + 返回Discovery Centre</b><div class="t-note">October itinerary是<b>glacier之后再Skywalk</b>。</div></td><td>shuttle</td><td>package内</td></tr><tr><td class="t-time">13:00–14:00</td><td><b>Chalet / onsite lunch</b><div class="t-note">简单午餐。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">14:00–17:00</td><td><b>Moraine Lounge / viewing deck / 冰原轻松时间</b><div class="t-note">不再加别的交通。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">17:35–19:00</td><td><b>Brewster Express → Jasper</b><div class="t-note">官方Banff→Jasper班次经过Icefield。</div></td><td>Brewster</td><td>按checkout</td></tr><tr><td class="t-time">19:15–20:00</td><td><b>The Crimson check-in</b><div class="t-note">无车友好、靠镇中心。</div></td><td>步行/taxi</td><td>—</td></tr><tr><td class="t-time">20:00–21:00</td><td><b>简单晚餐</b><div class="t-note">明天8:30 Maligne，今晚不要太重。</div></td><td>步行</td><td>C$35–55</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>冰原午餐用Chalet；Jasper第一晚吃简单。</p></div>
+<div><b>🎟 预订重点</b><p>Brewster与Glacier package最好同一天一起锁，避免出现“房有了但去Jasper的班次没位”。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>10月冰原温度很低，早上一定薄羽绒+防风防水外壳+手套。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/3 Sat</div><h3>Maligne Valley + Maligne Lake Cruise + Spirit Island</h3></div>
+<div class="route-day-meta"><span>住宿：Jasper</span><span>固定活动/交通：SunDog C$189+tax；Raven晚餐C$60–100</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:15–08:00</td><td><b>早餐</b><div class="t-note">酒店附近。</div></td><td>步行</td><td>C$15–25</td></tr><tr><td class="t-time">08:15</td><td><b>SunDog pickup准备</b><div class="t-note">官方tour 08:30出发。</div></td><td>tour pickup</td><td>含</td></tr><tr><td class="t-time">08:30–14:30</td><td><b>Maligne Valley Sightseeing + Cruise</b><div class="t-note">约6h；含Maligne Lake Cruise / Spirit Island。</div></td><td>SunDog</td><td>C$189+tax</td></tr><tr><td class="t-time">其中约1.5h</td><td><b>Maligne Lake Classic Cruise</b><div class="t-note">2026季到10/11；Spirit Island是Jasper核心。</div></td><td>游船</td><td>tour内</td></tr><tr><td class="t-time">14:45–15:30</td><td><b>回Jasper + late lunch</b><div class="t-note">回镇吃。</div></td><td>步行</td><td>C$25–40</td></tr><tr><td class="t-time">15:30–17:00</td><td><b>Jasper Town慢逛 / 休息</b><div class="t-note">不要下午再塞SkyTram。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">17:30–19:30</td><td><b>The Raven Bistro</b><div class="t-note">Jasper本次正式餐。</div></td><td>步行</td><td>C$60–100</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>Raven：Mediterranean fusion / elk / duck类；Tripadvisor近期建议提前约1周，早时段也会满。</p></div>
+<div><b>🎟 预订重点</b><p>SunDog Maligne tour现在就可列为高优先预订项；10月3日正好在季末运营窗口。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>Maligne Canyon 2026仍关闭，不把它塞进路线。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/4 Sun</div><h3>Jasper SkyTram + Pyramid Lake</h3></div>
+<div class="route-day-meta"><span>住宿：Jasper</span><span>固定活动/交通：SkyTram+shuttle C$85/成人；Pyramid taxi约C$20–35/程</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">07:30–08:20</td><td><b>早餐</b><div class="t-note">建议Harvest / 咖啡馆。</div></td><td>步行</td><td>C$20–35</td></tr><tr><td class="t-time">08:55左右</td><td><b>The Crimson → Jasper SkyTram</b><div class="t-note">SunDog shoulder-season shuttle有The Crimson pick-up。</div></td><td>shuttle</td><td>package内</td></tr><tr><td class="t-time">09:15–12:15</td><td><b>Jasper SkyTram + Whistlers</b><div class="t-note">7分钟tram，上面停1–3h；按天气决定是否继续summit trail。</div></td><td>SkyTram</td><td>C$85含hotel shuttle</td></tr><tr><td class="t-time">12:20–13:00</td><td><b>返回Jasper + 午餐</b><div class="t-note">回镇吃。</div></td><td>shuttle</td><td>含</td></tr><tr><td class="t-time">13:45–14:00</td><td><b>Taxi → Pyramid Lake</b><div class="t-note">Jasper无公共公交直达，直接打车最简单。</div></td><td>taxi</td><td>约C$20–35/车</td></tr><tr><td class="t-time">14:00–16:15</td><td><b>Pyramid Lake / Pyramid Island</b><div class="t-note">湖边慢走、秋色、看山。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">16:15–16:30</td><td><b>Taxi回镇</b><div class="t-note">不要靠走回去。</div></td><td>taxi</td><td>约C$20–35/车</td></tr><tr><td class="t-time">18:00–19:30</td><td><b>Jasper最后晚餐</b><div class="t-note">可回Raven/换当地餐厅。</div></td><td>步行</td><td>C$50–90</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>早餐Harvest；午餐简单；最后晚餐看当日胃口。</p></div>
+<div><b>🎟 预订重点</b><p>SkyTram一定天气优先：如果山顶全云，下午与Pyramid顺序互换；SkyTram票规则以checkout为准。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>10/4 Maligne仍运营，但我们已在前一天完成；今天刻意留出节奏。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/5 Mon</div><h3>Jasper → Edmonton Airport → Vancouver YVR</h3></div>
+<div class="route-day-meta"><span>住宿：Fairmont Vancouver Airport</span><span>固定活动/交通：SunDog C$99+tax；YEG→YVR约C$100–200+行李；Fairmont YVR C$375未税/C$440含税参考</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">06:15–06:40</td><td><b>Check-out</b><div class="t-note">前一晚打包完。</div></td><td>—</td><td>—</td></tr><tr><td class="t-time">06:45</td><td><b>到pickup点</b><div class="t-note">The Crimson也在SunDog Jasper→Edmonton接送体系。</div></td><td>步行</td><td>—</td></tr><tr><td class="t-time">07:00–12:30</td><td><b>Jasper → Edmonton International Airport</b><div class="t-note">官方每日服务。</div></td><td>SunDog bus</td><td>C$99+tax</td></tr><tr><td class="t-time">12:30–14:30</td><td><b>YEG午餐 + 候机</b><div class="t-note">建议订15:00以后的YEG→YVR。</div></td><td>步行</td><td>C$20–30</td></tr><tr><td class="t-time">15:00–16:40窗口</td><td><b>YEG → YVR</b><div class="t-note">直飞约1.5h左右；Vancouver慢1小时。</div></td><td>国内航班</td><td>C$100–200+</td></tr><tr><td class="t-time">17:00</td><td><b>Fairmont Vancouver Airport check-in</b><div class="t-note">就在terminal里，第二天回港最省心。</div></td><td>步行</td><td>C$375房价参考</td></tr><tr><td class="t-time">18:30–20:00</td><td><b>机场酒店晚餐 / Lounge</b><div class="t-note">不用再进downtown。</div></td><td>步行</td><td>C$50–90</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>最后一晚直接机场酒店，把10/6风险降到最低。</p></div>
+<div><b>🎟 预订重点</b><p>SunDog 07:00 Jasper→12:30 YEG要先锁；再选15:00后的YEG→YVR。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>如果YEG→YVR晚班更便宜，也可以在机场多等；不要订13:30前后太紧的班次。</p></div>
+</div>
+</article>
+<article class="route-day">
+<div class="route-day-head">
+<div><div class="route-date">10/6 Tue</div><h3>Vancouver YVR → Hong Kong 香港</h3></div>
+<div class="route-day-meta"><span>住宿：—</span><span>固定活动/交通：国际机票</span></div>
+</div>
+<div class="route-day-scroll">
+<table class="time-table">
+<thead><tr><th>时间</th><th>安排 / 建议停留</th><th>交通</th><th>预算/人</th></tr></thead>
+<tbody><tr><td class="t-time">国际航班前3h</td><td><b>酒店直接走到terminal</b><div class="t-note">Fairmont YVR就在机场。</div></td><td>步行</td><td>免费</td></tr><tr><td class="t-time">回程</td><td><b>YVR → HKG</b><div class="t-note">无需再做城市转场。</div></td><td>国际航班</td><td>已计入</td></tr></tbody>
+</table>
+</div>
+<div class="route-day-bottom">
+<div><b>🍽 当天餐食</b><p>机场早餐/机上餐。</p></div>
+<div><b>🎟 预订重点</b><p>Fairmont YVR的价值就是把返程日变得极稳。</p></div>
+<div><b>🌦 Plan B / 实测提醒</b><p>若国际航班是下午，也可睡到更晚，不建议再临时进城。</p></div>
+</div>
+</article>
+<h3 class="route-section-title">餐厅安排</h3><div class="route-scroll"><table class="route-table"><thead><tr><th>餐厅</th><th>安排在哪天</th><th>预约</th><th>预算/人</th><th>推荐点</th></tr></thead><tbody><tr><td><b>Miku Vancouver</b></td><td>9/25</td><td>建议1–2周</td><td>C$80–140</td><td>aburi sushi / seafood</td></tr><tr><td><b>The Bison</b></td><td>9/27</td><td>1–2周</td><td>C$75–120</td><td>bison dishes</td></tr><tr><td><b>Chuck’s</b></td><td>9/28</td><td>2–4周</td><td>C$100–160+</td><td>Alberta beef</td></tr><tr><td><b>Block / Seoul Country</b></td><td>9/29</td><td>Block walk-in / 韩餐短订</td><td>C$35–75</td><td>亚洲口味恢复</td></tr><tr><td><b>Altitude Restaurant</b></td><td>10/1</td><td>住客晚餐，入住后确认</td><td>C$70–120</td><td>glacier-view dining</td></tr><tr><td><b>The Raven Bistro</b></td><td>10/3</td><td>提前约1周</td><td>C$60–100</td><td>Mediterranean fusion / game meats</td></tr><tr><td><b>Harvest</b></td><td>10/4早餐</td><td>通常无需长期提前订</td><td>C$20–35</td><td>brunch / coffee</td></tr></tbody></table></div>
+<h3 class="route-section-title">预订优先级</h3>
+<div class="booking-priority">
+<div><b>① Glacier View Lodge package</b>10/1仅一晚；要和Brewster 10/1、10/2班次联动订。</div>
+<div><b>② Brewster Banff→Icefield→Jasper</b>10/1 14:15 Banff；10/2 17:35 Icefield→19:00 Jasper。</div>
+<div><b>③ Maligne + Cruise</b>10/3 SunDog 08:30，C$189+tax，季末位置更少。</div>
+<div><b>④ Jasper→YEG</b>10/5 07:00→12:30，C$99+tax；再接15:00以后YEG→YVR。</div>
+<div><b>⑤ Banff湖区</b>9/28 Super Pass + 9/29 Larch Super Pass。</div>
+<div><b>⑥ Raven Bistro / Miku</b>都建议至少提前1周。</div>
+</div>
+<h3 class="route-section-title">总预算</h3>
+<div class="route-scroll"><table class="route-table budget-route"><thead><tr><th>项目</th><th>每人预算</th><th>说明</th></tr></thead><tbody><tr><td>国际机票</td><td>约 ¥7,000</td><td>HKG→YVR / YVR→HKG更简单</td></tr><tr><td>住宿（两人分摊）</td><td>约 ¥14,500–19,000</td><td>Banff + Glacier View + Jasper + YVR机场酒店</td></tr><tr><td>加拿大境内飞机/长途巴士</td><td>约 ¥3,500–5,000</td><td>YVR→YYC、Brewster、Jasper→YEG、YEG→YVR</td></tr><tr><td>Rockies/Jasper活动</td><td>约 ¥4,000–6,000</td><td>Super Pass、Cruise、Yoho、Glacier package、Maligne、SkyTram</td></tr><tr><td>餐饮</td><td>约 ¥5,000–7,000</td><td>含Miku/Raven/Altitude等</td></tr><tr><td>杂费/Taxi</td><td>约 ¥1,000–1,500</td><td>Pyramid taxi、城市短途、小费</td></tr></tbody></table></div>
+<div class="route-total-grid">
+<div><small>性价比执行</small><b>约 ¥33k–38k</b></div>
+<div><small>推荐舒适执行</small><b>约 ¥38k–44k</b></div>
+<div><small>升级型</small><b>¥46k+</b></div>
+</div>
+<div class="route-callout"><b>方案3为什么能和方案1并列：</b>它不是“少看一些城市”，而是把同样的12天全部换成Pacific Coast → Banff lakes → Larch → Yoho → Columbia Icefield overnight → Jasper → Maligne/Spirit Island，景观递进最完整。</div>
+<div class="verified-links"><a href="https://www.banffjaspercollection.com/brewster-express/schedule/" rel="noopener" target="_blank">Brewster Express 2026</a><a href="https://www.banffjaspercollection.com/hotels/glacier-view-lodge/" rel="noopener" target="_blank">Glacier View Lodge 2026</a><a href="https://www.banffjaspercollection.com/hotels/glacier-view-lodge/columbia-icefield-experience/" rel="noopener" target="_blank">October Glacier Itinerary</a><a href="https://www.sundogtours.com/package/maligne-lake-cruise" rel="noopener" target="_blank">SunDog Maligne Tour</a><a href="https://www.sundogtours.com/package/jasper-hinton-edson-edmonton" rel="noopener" target="_blank">Jasper→Edmonton Bus</a><a href="https://www.sundogtours.com/package/jasper-skytram-shuttle" rel="noopener" target="_blank">Jasper SkyTram Shuttle</a></div>
+</section>
+</section>
+<section class="section" style="background:#10251f;color:#fff">
+<div class="wrap">
+<div class="eyebrow" style="color:#efc36d">Shared Essentials</div>
+<h2>三套路线共用的重点体验</h2>
+<div class="grid3">
+<article class="info-card"><img decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Lake_Minnewanka%2C_Banff_01.jpg/1280px-Lake_Minnewanka%2C_Banff_01.jpg"/><div class="body"><h3>Lake Minnewanka 明尼旺卡湖 Cruise</h3><p>适合作为 Banff 班夫 的低体力开场，湖上视角比单纯岸边停留更完整。</p></div></article>
+<article class="info-card"><img decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Golden_Larix_lyallii%2C_Larch_Valley%2C_Alberta.jpg/1280px-Golden_Larix_lyallii%2C_Larch_Valley%2C_Alberta.jpg"/><div class="body"><h3>Larch Hike</h3><p>9 月底最具季节性的体验之一。天气窗口优先级高于固定行程。</p></div></article>
+<article class="info-card"><img decoding="async" loading="lazy" src="https://cdn.getyourguide.com/image/format%3Dauto%2Cfit%3Dcrop%2Cgravity%3Dauto%2Cquality%3D60%2Cwidth%3D400%2Cheight%3D265%2Cdpr%3D2/tour_img/cdea6e0be127352b4a63688addf6917ef6f511dea006e031ca12dfe10028b683.png"/><div class="body"><h3>Banff 班夫 Hot Springs</h3><p>安排在徒步或湖区活动后的晚上，不占用白天天气窗口。</p></div></article>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="wrap">
+<div class="eyebrow">Art · Museums · Churches</div>
+<h2>值得保留的文化项目</h2>
+<div class="grid3">
+<article class="info-card"><img decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Museum_of_Anthropology_at_UBC_11.JPG/1280px-Museum_of_Anthropology_at_UBC_11.JPG"/><div class="body"><h3>Museum of Anthropology · UBC 不列颠哥伦比亚大学人类学博物馆</h3><p>仅方案3安排。重点是 Northwest Coast Indigenous art，与 Québec 的 Wendake 温达克 形成东西部文化呼应。</p></div></article>
+<article class="info-card"><img decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Notre-Dame%2C_Montreal_4.jpg/960px-Notre-Dame%2C_Montreal_4.jpg"/><div class="body"><h3>Notre-Dame Basilica 蒙特利尔圣母大教堂 · Montréal 蒙特利尔</h3><p>三套路线固定保留。Old Montréal 蒙特利尔老城 核心建筑，可与老城步行路线自然衔接。</p></div></article>
+<article class="info-card"><img decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Cathedral-Basilica_of_Notre-Dame_de_Qu%C3%A9bec.jpg/960px-Cathedral-Basilica_of_Notre-Dame_de_Qu%C3%A9bec.jpg"/><div class="body"><h3>Notre-Dame de Québec 魁北克圣母圣殿主教座堂</h3><p>并入 Old Québec 魁北克老城 步行路线，与 Château Frontenac 芳堤娜城堡、Petit-Champlain 小香普兰街 和《鬼怪》取景区域一起完成。</p></div></article>
+</div>
+<div class="callout"><b>Montréal 蒙特利尔 Museum of Fine Arts 蒙特利尔美术馆：</b>方案1有完整Montréal时间，建议作为 10/2 或 10/3 的可选项目；方案2/3不安排此馆。</div>
+<div class="callout"><b>2026 Wendake 日期提醒：</b>Onhwa’ Lumina 在10月初只开 <b>10/2、10/3</b> 2026 Wendake 日期提醒：Onhwa’ Lumina 在10月初只开 10/2、10/3，之后是10/9–10/12。方案1专门把Québec抵达安排在10/3，因此可参加18:40/19:00/19:20场；方案2与方案3不安排。</div></div>
+</section>
+<section class="section" id="gaspe-nocar" style="background:#f4efe6">
+<div class="wrap">
+<div class="eyebrow">OPTIONAL BRANCH · GASPÉ</div>
+<h2>Gaspé 加斯佩半岛 · 不自驾能不能去？</h2>
+<p class="lead">可以，但公共交通明显比 Banff 稀疏，且时间成本高。因此它更适合单独留 4–5 晚，而不是硬塞进当前12天。</p>
+<div class="detail-grid">
+<article class="detail-card"><h3>方案 A · 全公交慢旅行</h3><p>Québec City / Montréal → <b>Orléans Express</b> → Gaspé / Percé。到 Gaspé 后用 <b>RÉGÎM</b> 区域公交进入 Forillon 周边；RÉGÎM 21线经过 Penouille、Cap-des-Rosiers、Fort Péninsule 等入口点。</p><p>缺点：班次少、换乘受工作日限制；进入 Forillon 后没有园内公共交通，需步行或骑车。</p></article>
+<article class="detail-card"><h3>方案 B · 飞机 + 地方公交</h3><p>YUL → YGP 飞 Gaspé，再搭 RÉGÎM / taxi，之后用 Orléans Express 去 Percé。节省长途巴士时间，但机票常偏贵，地方 taxi 也应提前约。</p><p><b>不建议铁路：</b>Matapédia–Gaspé 客运仍未恢复，工程计划到2026年底左右才可能具备恢复条件。</p></article>
+</div>
+<div class="callout"><b>结论：</b>无车可以去 Gaspé，但不像 Banff 那样“公共交通成熟”。若以后专门给 Gaspé 4–5晚，我会按 <b>Gaspé 2晚 + Forillon 1日 + Percé 2晚</b>重新做一套无车路线。</div>
+</div>
+</section><section class="section" id="hotel-check">
+<div class="wrap">
+<div class="eyebrow">BANFF STAY · CURRENT PRICE SNAPSHOT</div>
+<h2>Moose Hotel vs Canmore condo</h2>
+<div class="detail-grid">
+<article class="detail-card"><h3>Moose Hotel &amp; Suites · Banff</h3><p>当前9月底2026价格信号非常高且波动大：Trivago 近30天最低价趋势显示 9/25约 C$1,100、9/27 C$869、9/28 C$948、9/29 C$1,186、9/30 C$832、10/1 C$977；9/26周六出现极端高价/稀缺信号。</p><p><b>工作预算：</b>大多数夜先按 <b>C$800–1,200/晚</b>准备；周六可能更高。优点是 Banff 镇中心、步行生活、屋顶 hot pools，无车价值很高。</p></article>
+<article class="detail-card"><h3>Skyridge 401 / Harvie Heights condo</h3><p>Expedia 当前样本：Skyridge 401 某9月日期约 C$455–586 税前，含税费总价示例约 C$689–990/晚；同区域其他 condo 也有更低或更高的浮动。</p><p><b>但无车不推荐：</b>它在 Harvie Heights，页面显示到 Banff Station 约17分钟车程；并不等于“下楼就能坐 Route 3”。无车时应改找 <b>Downtown Canmore、步行可到 Route 3</b> 的酒店/公寓。</p></article>
+</div>
+</div>
+</section><section class="section" id="banff-eat" style="background:#ebe6dc">
+<div class="wrap">
+<div class="eyebrow">BANFF EAT · RESERVATION TABLE</div>
+<h2>Banff 吃饭预约表</h2>
+<table class="ops-table">
+<thead><tr><th>餐厅</th><th>定位</th><th>什么时候订</th><th>预算/人</th><th>建议点什么</th></tr></thead>
+<tbody>
+<tr><td><b>Chuck’s Steakhouse</b></td><td>Steak night 首选；Alberta beef、店内 dry-aging。</td><td><b>日期一确定就订</b>；周五/周六或景观时段建议提前2–4周。</td><td>C$100–160+</td><td>Alberta beef；多人可问当日 platter / 多部位分享；配经典 sides。</td></tr>
+<tr><td><b>Seoul Country Korean Restaurant</b></td><td>亚洲胃恢复夜；真实游客评价很高。</td><td>不用提前数周；晚餐建议当日电话确认或提前1–3天。</td><td>C$30–50</td><td>海鲜豆腐汤、Korean BBQ、米饭 + banchan。</td></tr>
+<tr><td><b>The Maple Leaf</b></td><td>Banff 经典 Canadian steak &amp; seafood。</td><td>建议1–2周；周末更早。</td><td>C$70–110</td><td>Maple Salmon、海鲜；若有 bison short rib 可优先。牛排并非本次首选。</td></tr>
+<tr><td><b>The Keg · Banff Caribou</b></td><td>稳定传统牛排馆，适合不想踩雷的 steak night 备选。</td><td>提前几天到1周；周末约1周+。</td><td>C$55–90+</td><td>Prime rib / New York striploin；想升级可加 lobster。</td></tr>
+<tr><td><b>Block Kitchen + Bar</b></td><td>小而热门的亚洲融合 / small plates，本地口碑稳定。</td><td>空间小，建议提前约1周；周末1–2周。</td><td>C$45–75</td><td>Bao、Korean fried chicken、tuna/seafood small plates、cocktail。</td></tr>
+<tr><td><b>The Bison Restaurant</b></td><td>Regional / seasonal Canadian；想吃真正 bison 的高质量选择。</td><td>1–2周；周末/露台/景观位2–3周。</td><td>C$75–120+</td><td>Bison tartare C$32、Braised Bison Short Rib C$72、Steak Frites C$75；splurge 可 Bison Trio C$190。</td></tr>
+</tbody>
+</table>
+<div class="callout"><b>两顿优先锁：</b>Steak night = Chuck’s；亚洲胃恢复夜 = Seoul Country。The Bison 是“加拿大本地食材”体验型备选，Block 则适合想吃更轻松、更现代的一晚。</div>
+</div>
+</section><section class="section" id="lake-booking">
+<div class="wrap">
+<div class="eyebrow">LAKE BOOKING PLAYBOOK</div>
+<h2>Lake Louise / Moraine 抢票作战表</h2>
+<table class="ops-table">
+<thead><tr><th>方案</th><th>怎么买</th><th>关键时间</th><th>优缺点 / Plan B</th></tr></thead>
+<tbody>
+<tr><td><b>首选：Roam Super Pass</b></td><td>在线提前预订；含 Roam 全天通行、reserved 8X Banff↔Lake Louise、Parks Canada Connector 到 Moraine。</td><td>2026夏季9–10月批次已开放；热门日期越早越好。reserved 8X 建议提前20分钟到站。</td><td>最适合住 Banff 的无车方案；成人 C$30。注意：必须从 Banff 开始，walk-up 8X 不含 Moraine access。</td></tr>
+<tr><td><b>Parks Canada Shuttle</b></td><td>官网 reservation service；从 Lake Louise Park &amp; Ride 起终点。票含两湖 + Connector + 返回 Park &amp; Ride。</td><td>2026/4/15 08:00 MDT 放40%；剩余60%在<b>出发前2天 08:00 MT</b>释放。</td><td>适合能到 Park &amp; Ride 的人。普通时段6:30–17:00约30分钟一班，最后返回19:30；Connector 7:00–18:00。</td></tr>
+<tr><td><b>抢不到的 Plan B</b></td><td>商业 Lake Louise &amp; Moraine tour / 三湖小团。</td><td>热门周末建议尽早锁。</td><td>价格更高，但最稳；Version B 时间紧时尤其适合。</td></tr>
+</tbody>
+</table>
+<div class="callout"><b>2026关键纠错：</b>Roam Route 10 今年不运营。不要再照旧攻略寻找 10X / Route 10；正确无车链路是 <b>Super Pass + 8X + Parks Canada Connector</b>。</div>
+</div>
+</section><section class="section" id="no-car-master" style="background:#f4efe6">
+<div class="wrap">
+<div class="eyebrow">NO-CAR MASTER PLAN</div>
+<h2>Rockies 全程不自驾 · 交通执行方案</h2>
+<p class="lead">核心逻辑：机场—Banff 用 FlixBus；Banff / Lake Louise / Moraine 用 Roam + Parks Canada；Icefields Parkway 与 Yoho 用一日小团。这样避免租车，同时仍保留核心湖泊、Larch、Peyto、冰原大道和 Emerald Lake。</p>
+<table class="ops-table">
+<thead><tr><th>段落</th><th>交通</th><th>执行细节</th><th>预算参考</th></tr></thead>
+<tbody>
+<tr><td>YYC → Banff</td><td><b>FlixBus</b></td><td>Calgary International Airport：Door 14 / Bay 31。票价浮动，提前买；真实游客曾买到很低价格，但不要按低价做刚性预算。</td><td>动态票价</td></tr>
+<tr><td>备用机场接驳</td><td><b>Banff Airporter</b></td><td>班次更密、对航班衔接更友好；适合晚到或 FlixBus 时间不合。</td><td>C$88.90/成人单程</td></tr>
+<tr><td>Banff ↔ Canmore</td><td><b>Roam Route 3</b></td><td>如果住 Downtown Canmore 可用；无车情况下不建议住 Harvie Heights / Skyridge 这种离 transit hub 仍需打车的 condo。</td><td>C$6单程 / C$15日票</td></tr>
+<tr><td>Minnewanka</td><td><b>Roam Route 6</b></td><td>Banff Downtown 约25分钟；经过 Two Jack / Johnson Lake。2026运营至10/4；同日预购 Cruise 可免费乘车。</td><td>Cruise 当日交通可免费</td></tr>
+<tr><td>Louise + Moraine</td><td><b>Roam Super Pass</b></td><td>Banff → reserved 8X → Lake Louise → Parks Canada Connector → Moraine；必须从 Banff 开始。</td><td>C$30/成人/日</td></tr>
+<tr><td>Icefields Parkway</td><td><b>Discover Banff Tours</b></td><td>08:00 Banff 出发，约11h，Columbia Icefield + Glacier Skywalk；无车最省心的深度方案。</td><td>C$360/成人起</td></tr>
+<tr><td>Yoho / Emerald</td><td><b>Banff 出发一日团</b></td><td>选择覆盖 Emerald Lake + Natural Bridge 的线路；Version B 可用三湖商业小团把 Louise/Moraine/Emerald 集中一天。</td><td>约 C$145–200+/成人</td></tr>
+</tbody>
+</table>
+<div class="callout"><b>住宿位置因此改变：</b>如果确定不自驾，Banff 镇中心的价值明显上升；Canmore 也应优先选 Downtown、步行可到 Route 3 的酒店，而不是靠公路的 Skyridge / Harvie Heights condo。</div>
+</div>
+</section><section class="section" id="traveler-insights">
+<div class="wrap">
+<div class="eyebrow">REAL TRAVELER NOTES · XIAOHONGSHU</div>
+<h2>真实游客实测细节 · 已纳入执行逻辑</h2>
+<table class="ops-table">
+<thead><tr><th>地点</th><th>实测细节</th><th>在本攻略里的执行方式</th></tr></thead>
+<tbody>
+<tr><td>Moraine + Louise</td><td>两湖本身约5h；Moraine 的 Rockpile Trail 是经典视角。</td><td>Version A 给完整湖区日；不再硬塞远距离景点。</td></tr>
+<tr><td>Lake Agnes / Little Beehive</td><td>约10km、400m+、3h+。</td><td>作为体力升级项，不默认塞进两湖基础5h。</td></tr>
+<tr><td>Peyto Lake</td><td>单程步行约20min、整体约40min；多人评价回报极高。</td><td>Icefields 日优先级 S；天气好优先停。</td></tr>
+<tr><td>Bow / Waterfowl</td><td>Bow 约10–20min；Waterfowl 顺路约10min，有好光再停。</td><td>随 Icefields 小团/路线顺路处理。</td></tr>
+<tr><td>Emerald Lake</td><td>越早越好；划船晚了可能排队。</td><td>Yoho 团优先选择上午到 Emerald 的线路。</td></tr>
+<tr><td>Banff Gondola</td><td>约1.5–3h，日落前后体验最好。</td><td>放在 Yoho/轻松日傍晚，不占湖区黄金天气窗口。</td></tr>
+<tr><td>Canmore</td><td>真实游客认为住宿性价比高，Route 3 可到 Banff。</td><td>无车时只选 Downtown Canmore；不选仍需打车的 Harvie Heights condo。</td></tr>
+<tr><td>Niagara</td><td>真实游客高评价游船，比只在岸边看更值得。</td><td>Version B 固定加入 Voyage to the Falls。</td></tr>
+<tr><td>Toronto Islands</td><td>真实游客推荐 Water Taxi 去、Ferry 回看 skyline。</td><td>Version B 天气好固定优先；Distillery 做替代。</td></tr>
+<tr><td>Montréal Basilica</td><td>白天参观值得；有游客认为 AURA 灯光秀不值票价。</td><td>保留 Basilica 白天参观，AURA 不主动安排。</td></tr>
+</tbody>
+</table>
+<div class="callout"><b>Rockies 总原则：</b>不把每天锁死。Peyto / Moraine / Larch 对天气敏感，行程要允许根据能见度互换；个人体验用于判断“值不值、多久”，2026官方交通用于判断“能不能、怎么买”。</div>
+</div>
+</section><section class="section" style="background:#ebe6dc">
+<div class="wrap">
+<div class="eyebrow">Booking Notes</div>
+<h2>交通与预订执行要点</h2>
+<div class="grid3">
+<article class="compare-card"><h3>Rockies</h3><ul><li>Moraine Lake 梦莲湖 Road 私家车禁止进入，需使用 shuttle / Roam / 授权交通。</li><li>Icefields Parkway 冰原大道 9 月底需实时关注天气与路况。</li><li>酒店优先比较 Banff 班夫 / Canmore 坎莫尔，不建议为了住宿体验长期住高价 Lake Louise 露易丝湖。</li></ul></article>
+<article class="compare-card"><h3>East Canada</h3><ul><li>Montréal 蒙特利尔 与 Old Québec 魁北克老城 城内无需租车。</li><li>Québec 郊区只在 Jacques-Cartier / Île d’Orléans 奥尔良岛 / Wendake 温达克 使用租车或包车。</li><li>Toronto 多伦多 与 Niagara 若选择 Version B，建议提前锁定晚间 Toronto 多伦多→Montréal 蒙特利尔 交通。</li></ul></article>
+<article class="compare-card"><h3>Budget</h3><ul><li>国际机票已按约 ¥7,000/人计入。</li><li>预算按 C$1 ≈ ¥4.85 做规划换算。</li><li>实际总价最敏感的项目是 Rockies 酒店与加拿大国内航班。</li></ul></article>
+</div>
+</div>
+</section>
+<footer class="footer"><div class="wrap">Canada Fall 2026 · Interactive Travel Handbook · GitHub Pages / Mobile / WeChat</div></footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const tabButtons=[...document.querySelectorAll('.tab-btn')];
+tabButtons.forEach(btn=>btn.addEventListener('click',()=>{
+  tabButtons.forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+}));
+
+const places=[
+ {id:'vancouver',name:'Vancouver 温哥华',sub:'Version B',lat:49.2827,lng:-123.1207,z:10},
+ {id:'calgary',name:'Calgary 卡尔加里 / YYC',sub:'Rockies gateway',lat:51.0447,lng:-114.0719,z:9},
+ {id:'banff',name:'Banff 班夫',sub:'Minnewanka · Hot Springs',lat:51.1784,lng:-115.5708,z:11},
+ {id:'louise',name:'Lake Louise 露易丝湖 / Moraine Lake 梦莲湖',sub:'Glacial lakes',lat:51.4254,lng:-116.1773,z:11},
+ {id:'peyto',name:'Peyto Lake 佩托湖 / Icefields Parkway 冰原大道',sub:'Scenic road',lat:51.7175,lng:-116.5089,z:10},
+ {id:'emerald',name:'Emerald Lake 翡翠湖 / Yoho 幽鹤国家公园',sub:'Yoho NP',lat:51.4438,lng:-116.5312,z:11},
+ {id:'toronto',name:'Toronto 多伦多',sub:'Version B',lat:43.6532,lng:-79.3832,z:10},
+ {id:'niagara',name:'Niagara Falls 尼亚加拉瀑布',sub:'Version B',lat:43.0896,lng:-79.0849,z:11},
+ {id:'montreal',name:'Montréal 蒙特利尔',sub:'Old Montréal · Basilica',lat:45.5019,lng:-73.5674,z:10},
+ {id:'quebec',name:'Québec City 魁北克城',sub:'Old Québec · Wendake',lat:46.8139,lng:-71.2080,z:10},
+ {id:'orleans',name:'Île d’Orléans 奥尔良岛',sub:'Autumn island',lat:46.9144,lng:-70.9762,z:10}
+];
+
+document.getElementById('mapButtons').innerHTML=places.map((p,i)=>`<button class="place-btn" data-i="${i}">${i+1}. ${p.name}<small>${p.sub}</small></button>`).join('');
+
+const map=L.map('map',{scrollWheelZoom:false}).setView([55,-100],4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);
+const markers={};
+const planeIcon=L.divIcon({className:'plane-marker',html:'✈',iconSize:[30,30],iconAnchor:[15,15]});
+let lastPlaneLatLng=[places[0].lat,places[0].lng];
+const planeMarker=L.marker(lastPlaneLatLng,{icon:planeIcon,interactive:false,zIndexOffset:1000}).addTo(map);
+let planeAnim=null;
+function animatePlane(from,to){
+  if(planeAnim) cancelAnimationFrame(planeAnim);
+  const start=performance.now(), duration=900;
+  function frame(now){
+    const raw=Math.min(1,(now-start)/duration);
+    const t=raw<.5?2*raw*raw:1-Math.pow(-2*raw+2,2)/2;
+    const lat=from[0]+(to[0]-from[0])*t;
+    const lng=from[1]+(to[1]-from[1])*t;
+    planeMarker.setLatLng([lat,lng]);
+    if(raw<1) planeAnim=requestAnimationFrame(frame);
+  }
+  planeAnim=requestAnimationFrame(frame);
+}
+places.forEach(p=>{
+ markers[p.id]=L.circleMarker([p.lat,p.lng],{radius:7,color:'#fff',weight:2,fillColor:'#d69a35',fillOpacity:1}).addTo(map).bindPopup(`<b>${p.name}</b><br>${p.sub}`);
+});
+function line(a,b,color,dash){
+ const A=places.find(p=>p.id===a),B=places.find(p=>p.id===b);
+ if(A&&B)L.polyline([[A.lat,A.lng],[B.lat,B.lng]],{color,weight:3,opacity:.8,dashArray:dash||null}).addTo(map);
+}
+[['calgary','banff'],['banff','louise'],['louise','peyto'],['louise','emerald'],['toronto','niagara'],['montreal','quebec'],['quebec','orleans']].forEach(x=>line(x[0],x[1],'#d69a35'));
+[['vancouver','calgary'],['calgary','toronto'],['calgary','montreal'],['toronto','montreal']].forEach(x=>line(x[0],x[1],'#ad4d39','8,9'));
+
+document.querySelectorAll('.place-btn').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.place-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+ const p=places[+btn.dataset.i];
+ const next=[p.lat,p.lng];
+ animatePlane(lastPlaneLatLng,next);
+ lastPlaneLatLng=next;
+ map.flyTo(next,p.z,{duration:1.15});
+ setTimeout(()=>markers[p.id].openPopup(),500);
+}));
+
+window.addEventListener('resize',()=>setTimeout(()=>map.invalidateSize(),180));
+window.addEventListener('orientationchange',()=>setTimeout(()=>map.invalidateSize(),350));
+
+// Three-route tabs
+document.querySelectorAll('.route-tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.route-tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.route-tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel=document.getElementById('route-'+btn.dataset.route);
+    if(panel) panel.classList.add('active');
+    if(window.innerWidth<=768) btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  });
+});
+</script>
 </body>
 </html>
